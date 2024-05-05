@@ -8,12 +8,13 @@
 #include <SFML/OpenGL.hpp>
 #include <string>
 #include <functional>
+#include "TextureManager.h"
 
 
 using namespace std;
 using namespace sf;
 
-class Button : public sf::RectangleShape { /// este responsabil si pentru chipsuri si pentru butoane
+class Button : public sf::RectangleShape { 
 protected:
     sf::Color normalColor;
     sf::Color hoverColor;
@@ -23,19 +24,24 @@ protected:
 
 public:
     Button() = default;
-
     Button(float x, float y, float width, float height, sf::Color color, sf::Color hoverColor, function<void()> onClickFunction, const sf::Font& font, const string& text);
 
-    void checkEvents(sf::RenderWindow& window, Event& event);
+	Button(const Button& button);
+	Button& operator=(const Button& button);
 
-    void setOnClick(function<void()> onClickFunction);
+    virtual void checkEvents(sf::RenderWindow& window, Event& event);
+    virtual void draw(RenderWindow& window);
+    virtual void checkHover(RenderWindow& window);
 
-
-    void draw(RenderWindow& window);
+    virtual void setOnClick(function<void()> onClickFunction);
+	virtual void setPosition(float x, float y) { RectangleShape::setPosition(x, y); buttonText.setPosition(x, y); }
+	
+    
 
     void setVisible(bool visible) { this->visible = visible;  }
 	bool getVisible() const { return visible; }
-
+    bool getIsHovered(RenderWindow& window) const;
+	bool getIsClicked(RenderWindow& window, Event& event) const;
 
     function<void()> getOnClickFunction() const { return onClick; }
 

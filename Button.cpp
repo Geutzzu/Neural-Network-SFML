@@ -2,6 +2,8 @@
 #include <Button.h>
 #include <iostream>
 
+
+
 Button::Button(float x, float y, float width, float height, Color color, Color hoverColor, function<void()> onClickFunction, const Font& font, const string& text)
     : RectangleShape(Vector2f(width, height)), normalColor(color), hoverColor(hoverColor), onClick(onClickFunction) {
     this->setPosition(x, y);
@@ -18,9 +20,23 @@ Button::Button(float x, float y, float width, float height, Color color, Color h
     buttonText.setPosition(Vector2f(x + width / 2.0f, y + height / 2.0f));
 }
 
-void Button::checkEvents(RenderWindow& window, Event& event) {
-	Vector2i mousePos = Vector2i(event.mouseButton.x, event.mouseButton.y);
+Button::Button(const Button& button) : RectangleShape(button), normalColor(button.normalColor), hoverColor(button.hoverColor), onClick(button.onClick) {
+	buttonText = button.buttonText;
+}
 
+Button& Button::operator=(const Button& button) {
+	if (this != &button) {
+		RectangleShape::operator=(button);
+		normalColor = button.normalColor;
+		hoverColor = button.hoverColor;
+		onClick = button.onClick;
+		buttonText = button.buttonText;
+	}
+	return *this;
+}
+
+void Button::checkEvents(RenderWindow& window, Event& event) {
+    Vector2i mousePos = Mouse::getPosition(window);
 
     if (this->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
         this->setFillColor(hoverColor);
@@ -33,6 +49,19 @@ void Button::checkEvents(RenderWindow& window, Event& event) {
     }
 }
 
+void Button::checkHover(RenderWindow& window) {
+    Vector2i mousePos = Mouse::getPosition(window);
+
+    if (this->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+        this->setFillColor(hoverColor);
+	}
+	else {
+		this->setFillColor(normalColor);
+
+	}
+
+}
+
 void Button::setOnClick(function<void()> onClickFunction) {
     onClick = onClickFunction;
 }
@@ -41,4 +70,15 @@ void Button::draw(RenderWindow& window) {
     window.draw(static_cast<RectangleShape&>(*this));
     window.draw(buttonText);
 	this->visible = true;
+}
+
+
+bool Button::getIsHovered(RenderWindow& window) const {
+	Vector2i mousePos = Mouse::getPosition(window);
+	return this->getGlobalBounds().contains(mousePos.x, mousePos.y);
+}
+
+bool Button::getIsClicked(RenderWindow& window, Event& event) const {
+	Vector2i mousePos = Mouse::getPosition(window);
+	return this->getGlobalBounds().contains(mousePos.x, mousePos.y) && event.type == Event::MouseButtonReleased;
 }

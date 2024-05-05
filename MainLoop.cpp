@@ -13,11 +13,18 @@ MainLoop* MainLoop::getInstance() {
 }
 
 
-MainLoop::MainLoop() : window(sf::VideoMode(1920, 1080), "Neural Network"), network({ 2, 5, 2 }), networkVisualizer(network, sf::Vector2f(450, 200)), textureManager(TextureManager::getInstance()), gameState(GameState::InputingData) {
+MainLoop::MainLoop() : window(sf::VideoMode(1920, 1080), "Neural Network"), network({ 2, 5, 2 }), networkVisualizer(network, sf::Vector2f(450, 200)), textureManager(TextureManager::getInstance()), gameState(GameState::InputingData), learningRateSlider(720, 40, 200, 20, learningRate, "Learning Rate") { /// float x, float y, float width, float height, double& value, std::string name
 	this->window.setFramerateLimit(500);
 	this->circles = vector<CircleShape>();
 	this->dataPoints = set<DataPoint>();
 	this->epoch = 0;
+	this->learningRate = 0.1;
+	this->dataSetEmpty = true;
+
+	/// class dropdown
+    vector<Button*> colors;
+	
+	
 
     // Create the two views
     this->plotView = sf::View(sf::FloatRect(0, 0, window.getSize().x / 2, window.getSize().y));
@@ -28,15 +35,15 @@ MainLoop::MainLoop() : window(sf::VideoMode(1920, 1080), "Neural Network"), netw
 	this->plotView.move(window.getSize().x / 2, 0);
     this->networkView.setViewport(sf::FloatRect(0, 0, 0.5f, 1));
     
-    /// buttons
+    /// buttons and sliders
 	this->resetInputsButton = Button(10, 900, 150, 50, Color::Green, Color::Red, [this]() { this->resetInputs(); }, this->textureManager->getFont("roboto"), "Reset Inputs");
-
 }
 
 void MainLoop::resetInputs() {
 	this->dataPoints.clear();
 	this->circles.clear();
 	this->gameState = GameState::InputingData;
+	this->dataSetEmpty = true;
     this->epoch = 0;
 }
 
@@ -57,7 +64,7 @@ void MainLoop::visualizePlot()
     int height = this->window.getSize().y / pixelSize;
 
     // Define a vector of colors for each output
-    vector<Color> colors = { Color::Blue, Color::Red, Color::Green, Color::Yellow, Color::Magenta, Color::Cyan, Color::White, Color::Black };
+    vector<Color> colors = { Color::Blue, Color::Red, Color::Green, Color::Yellow, Color::Magenta, Color::Cyan };
 
     VertexArray container(Points, width * height);
     for (int i = 0; i < width * height; i++) {
@@ -103,10 +110,14 @@ void MainLoop::eventHandler(sf::Event& event, bool& space) {
         this->window.close();
     }
 
-    /// buttons
+    /// buttons and sliders
 	this->resetInputsButton.checkEvents(this->window, event);
 
 	this->networkVisualizer.checkEvents(this->window, event, this->networkView);
+
+	this->learningRateSlider.handleEvent(event);
+
+	this->classDropdown.checkEvents(this->window, event);
 
     /*if (event.KeyPressed && event.key.code == sf::Keyboard::L && space == false)
     {
@@ -151,6 +162,7 @@ void MainLoop::eventHandler(sf::Event& event, bool& space) {
             double normalizedX = event.mouseButton.x / static_cast<double>(this->window.getSize().x / 2) - 1;
             double normalizedY = event.mouseButton.y / static_cast<double>(this->window.getSize().y);
             this->dataPoints.insert(DataPoint({ normalizedX, normalizedY }, { 1, 0 }));
+			this->dataSetEmpty = false;
         }
         else if (event.mouseButton.button == sf::Mouse::Right) {
             this->circles.push_back(sf::CircleShape(10));
@@ -195,23 +207,6 @@ void MainLoop::zoomHandler() {
         this->networkView.move(0, 10); // Move down
     }
 
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-    {
-        this->plotView.move(-10, 0); // Move left
-    }
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-    {
-        this->plotView.move(10, 0); // Move right
-    }
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-    {
-        this->plotView.move(0, -10); // Move up
-    }
-    else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-    {
-        this->plotView.move(0, 10); // Move down
-    }
-
 
 }
 
@@ -225,7 +220,7 @@ void MainLoop::trainingState() {
     for (const auto& dataPoint : this->dataPoints) {
         this->network.UpdateGradientsForDataPoint(dataPoint); /// update the gradients for the data point
     }
-    this->network.ApplyAllGradients(0.1 / this->dataPoints.size()); /// apply the gradients to the weights and biases
+    this->network.ApplyAllGradients(this->learningRate / this->dataPoints.size()); /// apply the gradients to the weights and biases
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
     {
@@ -243,6 +238,7 @@ void MainLoop::run()
     this->gameState = GameState::InputingData;
 
     bool space = false;
+
 
     sf::Text costFunctionText;
 	sf::Text epochText;
@@ -290,7 +286,7 @@ void MainLoop::run()
 
         /// neural net visualization and neural net view
         this->window.setView(this->networkView);
-        this->networkVisualizer.draw(this->window, this->gameState); /// this visualizes the neural network
+        this->networkVisualizer.draw(this->window, this->gameState, this->dataSetEmpty); /// this visualizes the neural network
 
 
         /// text and buttons
@@ -301,6 +297,8 @@ void MainLoop::run()
 		this->window.draw(epochText);
 
 		this->resetInputsButton.draw(this->window);
+		this->learningRateSlider.draw(this->window);
+		this->classDropdown.draw(this->window);
 
         this->window.display();
 

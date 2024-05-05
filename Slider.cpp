@@ -1,32 +1,46 @@
 #include "Slider.h"
 #include <iostream>
 #include <algorithm>
+#include <iomanip>
+#include <sstream>
 
 
-
-Slider::Slider(float x, float y, float width, float height, double& value, std::string name) : value(value) // initialize the reference
-{
+void Slider::initializeVariables(float x, float y, float width, float height, double& value, std::string name) {
+    this->value = value;
+    this->textureManager = TextureManager::getInstance();
     this->name = name;
 
     track.setPosition(x, y);
     track.setSize(sf::Vector2f(width, height));
     track.setFillColor(sf::Color::White);
 
-    handle.setSize(sf::Vector2f(20, height));
-    handle.setFillColor(sf::Color::Red);
-    handle.setPosition(x, y);
+    handle.setSize(sf::Vector2f(20, height + 10));
+    sf::Color gray(128, 128, 128);
+    handle.setFillColor(gray);
+    // Calculate the center of the track and adjust for the size of the handle
+    float handleX = x + (width - handle.getSize().x) / 2;
+    float handleY = y + (height - handle.getSize().y) / 2;
+    handle.setPosition(handleX, handleY);
 
-    if (!font.loadFromFile("Resources/Roboto-Black.ttf")) { // replace with path to your font file
-        std::cout << "Error loading font\n";
-    }
-    std::cout << "Font loaded\n";
+    this->font = textureManager->getFont("roboto");
     text.setFont(font);
     text.setCharacterSize(24); // in pixels
     text.setFillColor(sf::Color::White);
-    text.setPosition(x, y - text.getCharacterSize() - 5);
+    text.setPosition(x, y - text.getCharacterSize() - 10);
 
     isDragging = false;
 }
+
+Slider::Slider(float x, float y, float width, float height, double& value, std::string name) : value(value) {
+    this->initializeVariables(x, y, width, height, value, name);
+}
+
+Slider::Slider(const Slider& other) : value(value) {
+    this->initializeVariables(other.track.getPosition().x, other.track.getPosition().y, other.track.getSize().x, other.track.getSize().y, other.value, other.name);
+}
+
+
+
 
 void Slider::handleEvent(const sf::Event& event) {
     if (event.type == sf::Event::MouseButtonPressed) {
@@ -45,7 +59,9 @@ void Slider::handleEvent(const sf::Event& event) {
             handle.setPosition(newX, handle.getPosition().y);
 
             value = ((newX - track.getPosition().x) / (track.getSize().x - handle.getSize().x)) * 6 - 3;
-            text.setString(name + ":" + std::to_string(value));
+            std::stringstream ss;
+            ss << std::fixed << std::setprecision(2) << value;
+            text.setString(name + ":" + ss.str());
         }
     }
 }

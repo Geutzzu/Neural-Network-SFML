@@ -28,6 +28,8 @@
 #include "TextureManager.h"
 #include "Neuron.h"
 #include "MainLoop.h"
+#include "ColorButton.h"
+#include "Dropdown.h"
 
 
 
@@ -43,10 +45,45 @@ int main() {
 	TextureManager* textureManager = TextureManager::getInstance();
 	textureManager->loadFonts();
 
-	MainLoop* mainLoop = MainLoop::getInstance();
-	mainLoop->run();
+	///MainLoop* mainLoop = MainLoop::getInstance();
+	///mainLoop->run();
 
 
+
+	RenderWindow window(VideoMode(1920, 1080), "Neural Network Visualizer");
+	/// ColorButton(float x, float y, float width, float height, sf::Color color, sf::Color hoverColor, sf::Color displayColor, function<void()> onClickFunction, const sf::Font & font, const string & text);
+
+	vector <Button*> buttons(7);
+
+	buttons[0] = new ColorButton(100, 100, 100, 50, Color::Red, Color::Green, Color::Blue, []() { cout << "Button 1" << endl; }, textureManager->getFont("roboto"), "Button 1");
+	buttons[1] = new ColorButton(100, 200, 100, 50, Color::Red, Color::Green, Color::Blue, []() { cout << "Button 2" << endl; }, textureManager->getFont("roboto"), "Button 2");
+	buttons[2] = new ColorButton(100, 300, 100, 50, Color::Red, Color::Green, Color::Blue, []() { cout << "Button 3" << endl; }, textureManager->getFont("roboto"), "Button 3");
+	buttons[3] = new ColorButton(100, 400, 100, 50, Color::Red, Color::Green, Color::Blue, []() { cout << "Button 4" << endl; }, textureManager->getFont("roboto"), "Button 4");
+	buttons[4] = new ColorButton(100, 500, 100, 50, Color::Red, Color::Green, Color::Blue, []() { cout << "Button 5" << endl; }, textureManager->getFont("roboto"), "Button 5");
+	buttons[5] = new ColorButton(100, 600, 100, 50, Color::Red, Color::Green, Color::Blue, []() { cout << "Button 6" << endl; }, textureManager->getFont("roboto"), "Button 6");
+	buttons[6] = new ColorButton(100, 700, 100, 50, Color::Red, Color::Green, Color::Blue, []() { cout << "Button 7" << endl; }, textureManager->getFont("roboto"), "Button 7");
+
+	
+	/// Dropdown(float x, float y, float width, float height, sf::Color color, sf::Color hoverColor, sf::Color displayColor, const sf::Font& font, const string& text, const vector<Button*>& buttons);
+
+	Dropdown dropdown1(100, 500, 100, 50, Color::Red, Color::Green, Color::Blue, buttons, textureManager->getFont("roboto"), "Dropdown");
+
+
+	Button* testButton = new ColorButton(100, 800, 100, 50, Color::Red, Color::Green, Color::Blue, []() { cout << "Test Button" << endl; }, textureManager->getFont("roboto"), "Test Button");
+	dropdown1.addOption(testButton);
+
+	while (window.isOpen()) {
+		Event event;
+		while (window.pollEvent(event)) {
+			if (event.type == Event::Closed) {
+				window.close();
+			}
+			dropdown1.checkEvents(window, event);
+		}
+		window.clear();
+		dropdown1.draw(window);
+		window.display();
+	}
 
 
 

@@ -131,6 +131,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Button.cpp" />
+    <ClCompile Include="CircleButton.cpp" />
+    <ClCompile Include="ColorButton.cpp" />
+    <ClCompile Include="Dropdown.cpp" />
     <ClCompile Include="LayerData.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainLoop.cpp" />
@@ -145,8 +148,11 @@
   <ItemGroup>
     <ClInclude Include="Activation.h" />
     <ClInclude Include="Button.h" />
+    <ClInclude Include="CircleButton.h" />
     <ClInclude Include="Cost.h" />
     <ClInclude Include="DataPoint.h" />
+    <ClInclude Include="Dropdown.h" />
+    <ClInclude Include="ColorButton.h" />
     <ClInclude Include="MainLoop.h" />
     <ClInclude Include="Neuron.h" />
     <ClInclude Include="Layer.h" />

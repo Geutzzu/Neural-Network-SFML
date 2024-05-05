@@ -28,9 +28,9 @@ private:
     
 
 public:
-    NetworkVisualizer(NeuralNetwork& network, sf::Vector2f position);
-    NetworkVisualizer(NetworkVisualizer& networkVisualizer);
-    NetworkVisualizer& operator=(NetworkVisualizer& networkVisualizer);
+	NetworkVisualizer(NeuralNetwork& network, sf::Vector2f position); /// constructor
+	NetworkVisualizer(const NetworkVisualizer& networkVisualizer); /// copy constructor
+	NetworkVisualizer& operator=(NetworkVisualizer& networkVisualizer); /// assignment operator
 
 	/// add or remove neuron
     void addNeuron(int layerIndex);
@@ -41,7 +41,7 @@ public:
     /// add or remove layer
 
     void initializeValues(sf::Vector2f position);
-    void draw(sf::RenderWindow& window, GameState gameState);
+    void draw(sf::RenderWindow& window, GameState gameState, bool dataSetEmpty);
 	void checkEvents(sf::RenderWindow& window, sf::Event event, sf::View& view);
 
 	void setPosition(sf::Vector2f position) { this->position = position; }
@@ -84,7 +84,7 @@ NetworkVisualizer<T>::NetworkVisualizer(NeuralNetwork& network, sf::Vector2f pos
 }
 
 template <typename T>
-NetworkVisualizer<T>::NetworkVisualizer(NetworkVisualizer& networkVisualizer) : network(networkVisualizer.network) {
+NetworkVisualizer<T>::NetworkVisualizer(const NetworkVisualizer& networkVisualizer) : network(networkVisualizer.network) {
     this->initializeValues(networkVisualizer.position);
 }
 
@@ -99,7 +99,7 @@ NetworkVisualizer<T>& NetworkVisualizer<T>::operator=(NetworkVisualizer& network
 
 
 template <typename T>
-void NetworkVisualizer<T>::draw(sf::RenderWindow& window, GameState gameState) {
+void NetworkVisualizer<T>::draw(sf::RenderWindow& window, GameState gameState, bool dataSetEmpty) {
     const std::vector<double>& activations = this->network.GetLayer(0).GetLayerData().GetActivations();
     double minActivation = *std::min_element(activations.begin(), activations.end());
     double maxActivation = *std::max_element(activations.begin(), activations.end());
@@ -107,8 +107,16 @@ void NetworkVisualizer<T>::draw(sf::RenderWindow& window, GameState gameState) {
 
 	if (gameState == GameState::InputingData) {
         for (int i = 0; i < this->layers.size(); i++) {
-            this->addOrRemoveNeuron[i].first.draw(window);
-            this->addOrRemoveNeuron[i].second.draw(window);
+
+            if (i == this->layers.size() - 1 && !dataSetEmpty) {
+                this->addOrRemoveNeuron[i].first.setVisible(false);
+                this->addOrRemoveNeuron[i].second.setVisible(false);
+            }
+            else {
+                this->addOrRemoveNeuron[i].first.draw(window);
+                this->addOrRemoveNeuron[i].second.draw(window);
+            }
+           
         }
 
         this->addOrRemoveLayer.first.draw(window);
@@ -118,6 +126,7 @@ void NetworkVisualizer<T>::draw(sf::RenderWindow& window, GameState gameState) {
 		this->addOrRemoveLayer.first.setVisible(false);
 		this->addOrRemoveLayer.second.setVisible(false);
 		for (int i = 0; i < this->layers.size(); i++) {
+            
 			this->addOrRemoveNeuron[i].first.setVisible(false);
 			this->addOrRemoveNeuron[i].second.setVisible(false);
 		}
@@ -275,15 +284,16 @@ void NetworkVisualizer<T>::checkEvents(sf::RenderWindow& window, sf::Event event
     worldEvent.mouseButton.x = worldPos.x;
     worldEvent.mouseButton.y = worldPos.y;
 
-    if (this->addOrRemoveLayer.first.getVisible()) { /// I wont touch this if it works as intended
         for (int i = 0; i < this->addOrRemoveNeuron.size(); i++) {
-            this->addOrRemoveNeuron[i].first.checkEvents(window, worldEvent);
-            this->addOrRemoveNeuron[i].second.checkEvents(window, worldEvent);
+			if (this->addOrRemoveNeuron[i].first.getVisible()) {
+				this->addOrRemoveNeuron[i].first.checkEvents(window, worldEvent);
+				this->addOrRemoveNeuron[i].second.checkEvents(window, worldEvent);
+			}
         }
-        this->addOrRemoveLayer.first.checkEvents(window, worldEvent);
-        this->addOrRemoveLayer.second.checkEvents(window, worldEvent); // Update the second button's event as well
-    }
-
+        if (this->addOrRemoveLayer.first.getVisible()) {
+            this->addOrRemoveLayer.first.checkEvents(window, worldEvent);
+            this->addOrRemoveLayer.second.checkEvents(window, worldEvent); // Update the second button's event as well
+        }
 
    
 }

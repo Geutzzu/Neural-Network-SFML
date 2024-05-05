@@ -5,7 +5,8 @@
 #include <NetworkVisualizer.h>
 #include <Neuron.h>
 #include <set>
-
+#include "Slider.h"
+#include "Dropdown.h"
 
 class MainLoop {
 private:
@@ -18,12 +19,17 @@ private:
 	set<DataPoint> dataPoints;
 	vector<CircleShape> circles;
 
-	/// buttons
+	/// buttons and sliders
 	Button resetInputsButton;
+	Slider learningRateSlider;
+	Dropdown classDropdown;
+
+	/// parameters
+	int epoch;
+	double learningRate;
 
 	/// misc
-	int epoch;
-
+	bool dataSetEmpty;
 
 
 	/// views
