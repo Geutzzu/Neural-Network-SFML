@@ -57,9 +57,9 @@ public:
 	void SetActivation(int index, double value) { this->activations[index] = value; }
 	void SetWeightedInput(int index, double value) { this->weightedInputs[index] = value; }
 
-	double GetInput(int index) const { return this->inputs[index]; }
-	double GetActivation(int index) const { return this->activations[index]; }
-	double GetWeightedInput(int index) const { return this->weightedInputs[index]; }
+	const double& GetInput(int index) const { return this->inputs[index]; }
+	const double& GetActivation (int index) const { return this->activations[index]; }
+	const double& GetWeightedInput(int index) const { return this->weightedInputs[index]; }
 
 	int GetNumberInputs() const { return this->inputs.size(); }
 	int GetNumberOutputs() const { return this->activations.size(); }

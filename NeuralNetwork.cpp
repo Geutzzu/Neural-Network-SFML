@@ -68,10 +68,10 @@ double NeuralNetwork::CostFunction(const DataPoint& dataPoint){ /// calculate th
 	return cost; /// return the cost
 }
 
-double NeuralNetwork::CostFunction(const vector<DataPoint>& dataPoints){ /// calculate the cost of the data points
+double NeuralNetwork::CostFunction(const set<DataPoint>& dataPoints){ /// calculate the cost of the data points
 	double cost = 0; /// initialize the cost to 0
-	for (int i = 0; i < dataPoints.size(); i++) { /// for each data point
-		cost += CostFunction(dataPoints[i]); /// add the cost of the data point to the cost
+	for (const auto& dataPoint : dataPoints) { /// for each data point
+		cost += CostFunction(dataPoint); /// add the cost of the data point to the cost
 	}
 	return cost; /// return the cost
 }
@@ -151,11 +151,26 @@ vector <DataPoint> NeuralNetwork::ClassifyAll(const vector<DataPoint>& dataPoint
 
 		result.SetOutputs(CalculateOutputs(dataPoints[i].GetInputs())); /// set the classification
 
-		for (int j = 0; j < result.GetOutputs().size(); j++)
-			cout << result.GetOutputs()[j] << " ";
+		/*for (int j = 0; j < result.GetOutputs().size(); j++)
+			cout << result.GetOutputs()[j] << " ";*/
 
 		predictedValues[i] = result; /// set the classification
 	}
 	return predictedValues; /// return the classifications
 }
 
+DataPoint NeuralNetwork::Classify(const DataPoint& dataPoint) { /// classify a single data point
+	DataPoint result = dataPoint; /// get the data point
+	result.SetOutputs(CalculateOutputs(dataPoint.GetInputs())); /// set the classification
+	return result; /// return the classification
+}
+
+
+
+const LayerData& NeuralNetwork::GetLayerData(int index) const { return this->layers[index].GetLayerData(); }
+
+const Layer& NeuralNetwork::GetLayer(int index) const { return this->layers[index]; }
+
+const vector<Layer>& NeuralNetwork::GetLayers() const { return this->layers; }
+
+int NeuralNetwork::GetNumberLayers() const { return this->layers.size(); }

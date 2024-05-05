@@ -16,20 +16,21 @@
 #include <SFML/Network.hpp>
 #include <SFML/OpenGL.hpp>
 
-#include "NeuralNetwork.h"
 #include "DataPoint.h"
-#include "Layer.h"
 #include "LayerData.h"
 #include "Cost.h"
 #include "Activation.h"
 #include "NetworkData.h"
 
+class Layer;
+
+#include "Layer.h"
 
 using namespace std;
 
 class NeuralNetwork {
 private:
-	vector<Layer> layers;
+	std::vector<Layer> layers; /// the layers of the neural network
 
 public:
 	NeuralNetwork(const vector<int>& layerSizes);
@@ -42,7 +43,7 @@ public:
 
 	double CostFunction(const DataPoint& dataPoint); /// calculate the cost of the data point
 
-	double CostFunction(const vector<DataPoint>& dataPoints); /// calculate the cost of the data points
+	double CostFunction(const set<DataPoint>& dataPoints); /// calculate the cost of the data points
 
 	void UpdateGradientsForDataPoint(const DataPoint& dataPoint);
 
@@ -56,10 +57,20 @@ public:
 
 	vector <DataPoint> ClassifyAll(const vector<DataPoint>& dataPoints); /// classify all the data points
 
+	DataPoint Classify(const DataPoint& dataPoint); /// classify a single data point
+
+
+
 
 
 	/// geter for reference (ruins encapsulation)
 	/// Layer& GetLayerRef(int index) { return this->layers[index]; }
 	
-	const LayerData& GetLayerData(int index) const { return this->layers[index].GetLayerData(); }
+	const LayerData& GetLayerData(int index) const;
+
+	const Layer& GetLayer(int index) const;
+
+	const vector<Layer>& GetLayers() const;
+
+	int GetNumberLayers() const;
 };

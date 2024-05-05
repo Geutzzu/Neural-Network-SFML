@@ -44,27 +44,46 @@ public:
 		this->outputs = outputs; /// set the output
 	}
 
-	std::vector<DataPoint> GenerateDataPoints(int numPoints) {
-		std::vector<DataPoint> dataPoints;
-		dataPoints.reserve(numPoints);
+    std::set<DataPoint> GenerateDataPoints(int numPoints) {
+        std::set<DataPoint> dataPoints;
 
-		std::random_device rd;
-		std::mt19937 gen(rd());
-		std::uniform_real_distribution<> dis(0.0, 1.0);
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_real_distribution<> dis(0.0, 1.0);
 
-		for (int i = 0; i < numPoints; ++i) {
-			double x = dis(gen);
-			double y = dis(gen);
-			DataPoint dp;
-			dp.inputs = { x, y };
-			// Label points above the line y = x as {1, 0}, and points below the line as {0, 1}
-			dp.outputs = (y > x) ? std::vector<double>{1, 0} : std::vector<double>{ 0, 1 };
-			dataPoints.push_back(dp);
-		}
+        for (int i = 0; i < numPoints; ++i) {
+            double x = dis(gen);
+            double y = dis(gen);
+            DataPoint dp;
+            dp.SetInputs({ x, y });
+            // Label points above the line y = x as {1, 0}, and points below the line as {0, 1}
+            dp.SetOutputs((y > x) ? std::vector<double>{1, 0} : std::vector<double>{ 0, 1 });
+            dataPoints.insert(dp);
+        }
 
-		return dataPoints;
-	}
+        return dataPoints;
+    }
 
+    std::set<DataPoint> GenerateDataPointsPixel(int numPoints) {
+        std::set<DataPoint> dataPoints;
+
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_real_distribution<> disX(640, 1280);
+        std::uniform_real_distribution<> disY(0, 720);
+
+        for (int i = 0; i < numPoints; ++i) {
+            double x = disX(gen);
+            double y = disY(gen);
+            DataPoint dp;
+            dp.SetInputs({ x, y });
+            // Label points above the line y = x as {1, 0}, and points below the line as {0, 1}
+            dp.SetOutputs((y + 640 > x) ? std::vector<double>{1, 0} : std::vector<double>{ 0, 1 });
+            dataPoints.insert(dp);
+        }
+
+        return dataPoints;
+    }
 
 	const vector<double>& GetInputs() const /// geter for the inputs
 	{
@@ -85,4 +104,25 @@ public:
 	{
 		this->outputs = outputs;
 	}
+
+    bool operator<(const DataPoint& other) const
+    {
+        if (this->inputs[1] < other.inputs[1])
+            return true;
+        else if (this->inputs[1] == other.inputs[1] && this->inputs[0] < other.inputs[0])
+            return true;
+        else
+            return false;
+    }
+
+    bool operator>(const DataPoint& other) const
+    {
+        if (this->inputs[1] > other.inputs[1])
+            return true;
+        else if (this->inputs[1] == other.inputs[1] && this->inputs[0] > other.inputs[0])
+            return true;
+        else
+            return false;
+    }
+
 };

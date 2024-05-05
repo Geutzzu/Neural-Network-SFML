@@ -104,7 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\boroz\Desktop\SFML\SFML-2.6.1-windows-vc17-64-bit\SFML-2.6.1\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\boroz\ProiectBlackJack\NeuralNet;C:\Users\boroz\Desktop\SFML\SFML-2.6.1-windows-vc17-64-bit\SFML-2.6.1\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -130,19 +130,33 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Button.cpp" />
     <ClCompile Include="LayerData.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MainLoop.cpp" />
+    <ClCompile Include="NetworkVisualizer.cpp" />
     <ClCompile Include="NeuralNetwork.cpp" />
     <ClCompile Include="Layer.cpp" />
+    <ClCompile Include="LayerVisualizer.cpp" />
+    <ClCompile Include="Neuron.cpp" />
+    <ClCompile Include="Slider.cpp" />
+    <ClCompile Include="TextureManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Activation.h" />
+    <ClInclude Include="Button.h" />
     <ClInclude Include="Cost.h" />
     <ClInclude Include="DataPoint.h" />
+    <ClInclude Include="MainLoop.h" />
+    <ClInclude Include="Neuron.h" />
     <ClInclude Include="Layer.h" />
     <ClInclude Include="LayerData.h" />
+    <ClInclude Include="LayerVisualizer.h" />
     <ClInclude Include="NetworkData.h" />
+    <ClInclude Include="NetworkVisualizer.h" />
     <ClInclude Include="NeuralNetwork.h" />
+    <ClInclude Include="Slider.h" />
+    <ClInclude Include="TextureManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

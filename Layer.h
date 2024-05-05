@@ -19,10 +19,10 @@
 #include <SFML/Audio.hpp>
 #include <SFML/Network.hpp>
 #include <SFML/OpenGL.hpp>
+#include <sstream>
 
 #include "NeuralNetwork.h"
 #include "DataPoint.h"
-#include "Layer.h"
 #include "LayerData.h"
 #include "Cost.h"
 #include "Activation.h"
@@ -30,6 +30,8 @@
 
 
 using namespace std;
+using namespace sf;
+
 
 class Layer {
 private:
@@ -41,7 +43,7 @@ private:
 	vector <double> costGradientWeights; //// gradient for the weights - each weight will have a gradient pointing towards a local minimum
 	vector <double> costGradientBiases; //// gradient for the biases - each bias will have a gradient pointing towards a local minimum
 
-	LayerData layerData;
+	LayerData layerData; /// data for the layer - inputs, weighted inputs, activations
 
 public:
 
@@ -64,7 +66,15 @@ public:
 	double& GetWeightRef(int inputIndex, int outputIndex) { return this->weights[inputIndex + outputIndex * this->numberInputs]; }
 	double& GetBiasRef(int outputIndex) { return this->biases[outputIndex]; }
 
+	const vector <double>& GetWeights() const  { return this->weights; }
+	const vector <double>& GetBiases() const { return this->biases; }
+
 	const LayerData& GetLayerData() const { return this->layerData; }
+	const int GetNumberInputs() const { return this->numberInputs; }
+	const int GetNumberOutputs() const { return this->numberOutputs; }
+	const double GetOutput(int index) const { return this->layerData.GetActivation(index); }
+
+
 
 };
 

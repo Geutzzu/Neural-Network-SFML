@@ -40,7 +40,10 @@ Layer::Layer(int numberInputs, int numberOutputs) {
 void Layer::InitializeWeightsAndBiases() {
 	/// randomly initialize the weights and biases
 	for (int i = 0; i < this->weights.size(); i++) {
-		this->weights[i] = (rand() % 1000) / 1000.0 - 2; /// random number between -0.5 and 0.5
+		this->weights[i] = (rand() % 1000) / 1000.0 - 0.5; /// random number between -0.5 and 0.5
+	}
+	for (int i = 0; i < this->biases.size(); i++) {
+		this->biases[i] = (rand() % 1000) / 1000.0 - 0.5; /// random number between -0.5 and 0.5
 	}
 }
 
@@ -72,7 +75,7 @@ vector<double> Layer::CalculateOutputs(const vector<double>& inputs) {
 		}
 		this->layerData.SetWeightedInput(i, weightedInput); /// set the output to the output
 	}
-	Activation<ActivationType::Sigmoid> function; /// initialize the activation function
+	Activation<ActivationType::ReLU> function; /// initialize the activation function
 	for (int i = 0; i < this->numberOutputs; i++) { /// for each output
 		this->layerData.SetActivation(i, function.Activate(this->layerData.GetWeightedInputs(), i)); /// activate the output
 	}
@@ -107,6 +110,3 @@ void Layer::ApplyGradients(double learningRate) {
 		this->costGradientBiases[i] = 0; /// reset the gradient
 	}
 }
-
-/// Layer -> layer data
-/// neural net -> network data
