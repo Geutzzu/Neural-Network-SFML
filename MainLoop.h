@@ -21,6 +21,7 @@ private:
 
 	/// buttons and sliders
 	Button resetInputsButton;
+	Button resetTrainingButton;
 	Slider learningRateSlider;
 	Dropdown classDropdown;
 
@@ -30,6 +31,9 @@ private:
 
 	/// misc
 	bool dataSetEmpty;
+	Color dataColor;
+	vector<Color> classColors;
+	int numberClasses;
 
 
 	/// views
@@ -46,13 +50,18 @@ public:
 
 	static MainLoop* getInstance();
 
+	/// initializing functions
+	void initializeClassDropdown();
+
 	/// functions for functionality
+	void updateNumberOfClasses();
 	void drawRightHalfScreen();
 	void visualizePlot();
 	void eventHandler(sf::Event& event, bool& space); /// to change the bool space
 	void zoomHandler();
 	void trainingState();
 	void resetInputs();
+	void resetTraining();
 
 
 	/// main loop

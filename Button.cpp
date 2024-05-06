@@ -3,40 +3,68 @@
 #include <iostream>
 
 
+void Button::initText() {
+
+	FloatRect textRect = this->buttonText.getLocalBounds();
+	this->buttonText.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
+	this->buttonText.setPosition(Vector2f(this->getPosition().x + this->getSize().x / 2.0f, this->getPosition().y + this->getSize().y / 2.0f));
+
+}
+
+
+void Button::init(float x, float y, float width, float height, Color color, Color hoverColor, function<void()> onClickFunction, const Font& font, const string& text) {
+	this->setPosition(x, y);
+	this->setSize(Vector2f(width, height));
+	this->setFillColor(color);
+	this->normalColor = color;
+	this->hoverColor = hoverColor;
+	this->onClick = onClickFunction;
+	this->textureManager = TextureManager::getInstance();
+
+	this->font = font;
+	this->buttonText.setFont(font);
+	this->buttonText.setString(text);
+	this->buttonText.setCharacterSize(24);
+	this->buttonText.setFillColor(Color::Black);
+	this->buttonText.setPosition(x, y);
+
+	FloatRect textRect = this->buttonText.getLocalBounds();
+	this->buttonText.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
+	this->buttonText.setPosition(Vector2f(x + width / 2.0f, y + height / 2.0f));
+}
+
 
 Button::Button(float x, float y, float width, float height, Color color, Color hoverColor, function<void()> onClickFunction, const Font& font, const string& text)
     : RectangleShape(Vector2f(width, height)), normalColor(color), hoverColor(hoverColor), onClick(onClickFunction) {
-    this->setPosition(x, y);
-    this->setFillColor(normalColor);
-
-    buttonText.setFont(font);
-    buttonText.setString(text);
-    buttonText.setCharacterSize(24);
-    buttonText.setFillColor(Color::Black);
-    buttonText.setPosition(x, y);
-
-    FloatRect textRect = buttonText.getLocalBounds();
-    buttonText.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
-    buttonText.setPosition(Vector2f(x + width / 2.0f, y + height / 2.0f));
+	this->init(x, y, width, height, color, hoverColor, onClickFunction, font, text);
 }
 
 Button::Button(const Button& button) : RectangleShape(button), normalColor(button.normalColor), hoverColor(button.hoverColor), onClick(button.onClick) {
-	buttonText = button.buttonText;
+	this->buttonText = button.buttonText;
+	this->textureManager = TextureManager::getInstance();
+	this->font = textureManager->getFont("roboto");
+	this->buttonText.setFont(this->font);
+	this->buttonText = button.buttonText;
+
 }
 
 Button& Button::operator=(const Button& button) {
 	if (this != &button) {
 		RectangleShape::operator=(button);
-		normalColor = button.normalColor;
-		hoverColor = button.hoverColor;
-		onClick = button.onClick;
-		buttonText = button.buttonText;
+		this->normalColor = button.normalColor;
+		this->hoverColor = button.hoverColor;
+		this->onClick = button.onClick;
+		this->textureManager = TextureManager::getInstance();
+		this->font = textureManager->getFont("roboto");
+		this->buttonText.setFont(this->font);
+		this->buttonText = button.buttonText;
 	}
 	return *this;
 }
 
 void Button::checkEvents(RenderWindow& window, Event& event) {
-    Vector2i mousePos = Mouse::getPosition(window);
+    Vector2i mousePos = Vector2i(event.mouseButton.x, event.mouseButton.y);
+
 
     if (this->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
         this->setFillColor(hoverColor);
@@ -47,7 +75,24 @@ void Button::checkEvents(RenderWindow& window, Event& event) {
     else {
         this->setFillColor(normalColor);
     }
+	
 }
+
+void Button::checkEvents(RenderWindow& window) {
+	Vector2i mousePos = Mouse::getPosition(window);
+
+	if (this->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+		this->setFillColor(hoverColor);
+		if (Mouse::isButtonPressed(Mouse::Left)) {
+			onClick();
+		}
+	}
+	else {
+		this->setFillColor(normalColor);
+	}
+}
+
+
 
 void Button::checkHover(RenderWindow& window) {
     Vector2i mousePos = Mouse::getPosition(window);

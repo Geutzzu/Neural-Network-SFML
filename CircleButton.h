@@ -7,7 +7,8 @@ protected:
     sf::CircleShape circleShape;
 
 public:
-	CircleButton();
+	CircleButton() = default;
+
 
     CircleButton(float x, float y, float radius, sf::Color color, sf::Color hoverColor, function<void()> onClickFunction, const sf::Font& font, const string& text);
 

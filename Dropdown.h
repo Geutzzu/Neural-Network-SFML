@@ -8,6 +8,7 @@
 class Dropdown : public ColorButton {
 private:
     Button* selectedButton;
+	int selectedIndex;
     std::vector<Button*> buttons;
     bool isOpen;
 
@@ -20,11 +21,21 @@ public:
 
     void initializeVariables(float x, float y, float width, float height, sf::Color color, sf::Color hoverColor, sf::Color displayColor, const vector<Button*>& buttons);
 
+
+    void setPositions();
     void addOption(Button* button);
+	void removeOption(int index);
+
+
+
     void checkEvents(sf::RenderWindow& window, sf::Event& event) override;
     void draw(sf::RenderWindow& window) override;
     bool getIsOpen() const;
     void setIsOpen(bool isOpen);
+
+	void setButtons(const vector<Button*>& buttons);
+
+	int getNumButtons() const;
 
     ~Dropdown();
 };

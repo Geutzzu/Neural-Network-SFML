@@ -35,3 +35,21 @@ void ColorButton::setPosition(float x, float y) {
 	Button::setPosition(x, y);
 	colorDisplay.setPosition(x + 10.0f, y + 10.0f);
 }
+
+
+//// only for dropdowns
+
+void ColorButton::checkEventsDropdown(sf::RenderWindow& window, sf::Event& event) {
+	Vector2i mousePos = Mouse::getPosition(window);
+
+
+	if (this->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
+		this->setFillColor(hoverColor);
+		if (event.type == Event::MouseButtonReleased) {
+			onClick();
+		}
+	}
+	else {
+		this->setFillColor(normalColor);
+	}
+}

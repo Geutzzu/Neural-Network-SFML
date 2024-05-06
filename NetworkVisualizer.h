@@ -46,6 +46,9 @@ public:
 
 	void setPosition(sf::Vector2f position) { this->position = position; }
 
+	int getNumberLayers() const { return this->network.GetNumberLayers(); }
+	int getNumberOutputs() const { return this->network.GetLayer(this->network.GetNumberLayers() - 1).GetNumberOutputs(); }
+
 };
 
 template <typename T>
@@ -63,18 +66,18 @@ void NetworkVisualizer<T>::initializeValues(sf::Vector2f position) {
     for (int i = 0; i < this->network.GetNumberLayers(); i++) {
         LayerVisualizer<T> layerVisualizer(this->network.GetLayer(i), position + sf::Vector2f(i * 340, 0));
         layers.push_back(layerVisualizer);
-        Button addNeuronButton(position.x + i * 340 - 23, position.y - 75, 50, 50, Color::Green, Color::Red, [i, this]() { 
+        Button addNeuronButton(position.x + i * 340 - 23, position.y - 75, 50, 50, Color(128, 128, 128), Color(160, 160, 160), [i, this]() {
                 this->addNeuron(i);
           }, textureManager->getFont("roboto"), "+");
-        Button removeNeuronButton(position.x + i * 340 + 75 - 23, position.y - 75, 50, 50, Color::Green, Color::Red, [i, this]() { 
+        Button removeNeuronButton(position.x + i * 340 + 75 - 23, position.y - 75, 50, 50, Color(128, 128, 128), Color(160, 160, 160), [i, this]() {
                 this->removeNeuron(i); 
           }, textureManager->getFont("roboto"), "-");
 
 
 		this->addOrRemoveNeuron.push_back(make_pair(addNeuronButton, removeNeuronButton));
     }
-	Button addLayerButton(position.x + (this->network.GetNumberLayers() - 1) * 340 - 23, position.y + 500, 50, 50, Color::Green, Color::Red, [this]() { this->addLayer(); }, textureManager->getFont("roboto"), "+");
-	Button removeLayerButton(position.x + (this->network.GetNumberLayers() - 1) * 340 + 75 - 23, position.y + 500, 50, 50, Color::Green, Color::Red, [this]() { this->removeLayer(); }, textureManager->getFont("roboto"), "-");
+	Button addLayerButton(position.x + (this->network.GetNumberLayers() - 1) * 340 - 23, position.y + 500, 50, 50, Color(128, 128, 128), Color(160, 160, 160), [this]() { this->addLayer(); }, textureManager->getFont("roboto"), "+");
+	Button removeLayerButton(position.x + (this->network.GetNumberLayers() - 1) * 340 + 75 - 23, position.y + 500, 50, 50, Color(128, 128, 128), Color(160, 160, 160), [this]() { this->removeLayer(); }, textureManager->getFont("roboto"), "-");
 	this->addOrRemoveLayer = make_pair(addLayerButton, removeLayerButton);
 }
 

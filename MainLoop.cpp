@@ -13,19 +13,34 @@ MainLoop* MainLoop::getInstance() {
 }
 
 
-MainLoop::MainLoop() : window(sf::VideoMode(1920, 1080), "Neural Network"), network({ 2, 5, 2 }), networkVisualizer(network, sf::Vector2f(450, 200)), textureManager(TextureManager::getInstance()), gameState(GameState::InputingData), learningRateSlider(720, 40, 200, 20, learningRate, "Learning Rate") { /// float x, float y, float width, float height, double& value, std::string name
+void MainLoop::initializeClassDropdown() {
+    this->classDropdown.addOption(new ColorButton(0, 0, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color::Blue, [this]() { this->dataColor = Color(0, 0, 255); }, this->textureManager->getFont("roboto"), ""));
+    this->classDropdown.addOption(new ColorButton(0, 0, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color::Red, [this]() { this->dataColor = Color(255, 0, 0); }, this->textureManager->getFont("roboto"), ""));
+    
+}
+
+
+MainLoop::MainLoop() : window(sf::VideoMode(1920, 1080), "Neural Network"), network({ 2, 5, 2 }), networkVisualizer(network, sf::Vector2f(450, 200)), textureManager(TextureManager::getInstance()), gameState(GameState::InputingData), learningRateSlider(720, 40, 200, 20, learningRate, "Learning Rate"),
+classDropdown(10, 800, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color(25, 25, 25), {} , this->textureManager->getFont("roboto"), "") { /// float x, float y, float width, float height, double& value, std::string name
 	this->window.setFramerateLimit(500);
 	this->circles = vector<CircleShape>();
 	this->dataPoints = set<DataPoint>();
 	this->epoch = 0;
 	this->learningRate = 0.1;
 	this->dataSetEmpty = true;
+	this->numberClasses = 2;
+	this->dataColor = Color(255, 0, 0);
+	this->classColors = { Color(0, 0, 255),  // Red
+        Color(255, 0, 0),       // Blue
+        Color(0, 255, 0),       // Green
+        Color(255, 255, 0),     // Yellow
+        Color(128, 0, 128),     // Purple
+        Color(255, 165, 0)      // Orange
+    };
 
 	/// class dropdown
-    vector<Button*> colors;
+	this->initializeClassDropdown();
 	
-	
-
     // Create the two views
     this->plotView = sf::View(sf::FloatRect(0, 0, window.getSize().x / 2, window.getSize().y));
     this->networkView = sf::View(sf::FloatRect(0, 0, window.getSize().x / 2, window.getSize().y));
@@ -36,7 +51,8 @@ MainLoop::MainLoop() : window(sf::VideoMode(1920, 1080), "Neural Network"), netw
     this->networkView.setViewport(sf::FloatRect(0, 0, 0.5f, 1));
     
     /// buttons and sliders
-	this->resetInputsButton = Button(10, 900, 150, 50, Color::Green, Color::Red, [this]() { this->resetInputs(); }, this->textureManager->getFont("roboto"), "Reset Inputs");
+	this->resetInputsButton = Button(10, 900, 150, 50, Color(50, 50, 50), Color(105, 105, 105), [this]() { this->resetInputs(); }, this->textureManager->getFont("roboto"), "Reset Inputs");
+    this->resetTrainingButton = Button(200, 900, 180, 50, Color(50, 50, 50), Color(105, 105, 105), [this]() { this->resetTraining(); }, this->textureManager->getFont("roboto"), "Reset Training");
 }
 
 void MainLoop::resetInputs() {
@@ -45,6 +61,12 @@ void MainLoop::resetInputs() {
 	this->gameState = GameState::InputingData;
 	this->dataSetEmpty = true;
     this->epoch = 0;
+}
+
+void MainLoop::resetTraining() {
+	this->network.InitializeWeightsAndBiases();
+	this->epoch = 0;
+	this->gameState = GameState::InputingData;
 }
 
 void MainLoop::drawRightHalfScreen() {
@@ -111,7 +133,8 @@ void MainLoop::eventHandler(sf::Event& event, bool& space) {
     }
 
     /// buttons and sliders
-	this->resetInputsButton.checkEvents(this->window, event);
+	this->resetInputsButton.checkEvents(this->window);
+	this->resetTrainingButton.checkEvents(this->window);
 
 	this->networkVisualizer.checkEvents(this->window, event, this->networkView);
 
@@ -155,24 +178,23 @@ void MainLoop::eventHandler(sf::Event& event, bool& space) {
     if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.x > this->window.getSize().x / 2 && this->gameState == GameState::InputingData) {
         if (event.mouseButton.button == sf::Mouse::Left) {
             this->circles.push_back(sf::CircleShape(10));
-            this->circles.back().setFillColor(sf::Color::Blue);
+            this->circles.back().setFillColor(this->dataColor);
             this->circles.back().setPosition(event.mouseButton.x, event.mouseButton.y);
             this->circles.back().setOutlineThickness(2); // Set the thickness of the outline
             this->circles.back().setOutlineColor(sf::Color::White); // Set the color of the outline
             double normalizedX = event.mouseButton.x / static_cast<double>(this->window.getSize().x / 2) - 1;
             double normalizedY = event.mouseButton.y / static_cast<double>(this->window.getSize().y);
-            this->dataPoints.insert(DataPoint({ normalizedX, normalizedY }, { 1, 0 }));
+			for (int i = 0; i < this->numberClasses; i++)
+            {
+				if (this->dataColor == this->classColors[i])
+                {
+					vector<double> outputs(this->numberClasses, 0);
+					outputs[i] = 1;
+					this->dataPoints.insert(DataPoint({ normalizedX, normalizedY }, outputs));
+				}
+			}
+
 			this->dataSetEmpty = false;
-        }
-        else if (event.mouseButton.button == sf::Mouse::Right) {
-            this->circles.push_back(sf::CircleShape(10));
-            this->circles.back().setFillColor(sf::Color::Red);
-            this->circles.back().setPosition(event.mouseButton.x, event.mouseButton.y);
-            this->circles.back().setOutlineThickness(2); // Set the thickness of the outline
-            this->circles.back().setOutlineColor(sf::Color::White); // Set the color of the outline
-            double normalizedX = event.mouseButton.x / static_cast<double>(this->window.getSize().x / 2) - 1;
-            double normalizedY = event.mouseButton.y / static_cast<double>(this->window.getSize().y);
-            this->dataPoints.insert(DataPoint({ normalizedX, normalizedY }, { 0, 1 }));
         }
     }
 
@@ -215,8 +237,6 @@ void MainLoop::trainingState() {
 
     this->epoch++;
     
-
-
     for (const auto& dataPoint : this->dataPoints) {
         this->network.UpdateGradientsForDataPoint(dataPoint); /// update the gradients for the data point
     }
@@ -230,6 +250,24 @@ void MainLoop::trainingState() {
 }
 
 
+void MainLoop::updateNumberOfClasses() {
+	this->numberClasses = this->networkVisualizer.getNumberOutputs();
+    if (this->numberClasses < this->classDropdown.getNumButtons())
+    {
+		for (int i = this->numberClasses; i < this->classDropdown.getNumButtons(); i++)
+		{
+			this->classDropdown.removeOption(i);
+		}
+	}
+    else if (this->numberClasses > this->classDropdown.getNumButtons())
+    {
+        for (int i = this->classDropdown.getNumButtons(); i < this->numberClasses; i++)
+        {
+			this->classDropdown.addOption(new ColorButton(0, 0, 150, 50, Color(50, 50, 50), Color(105, 105, 105), this->classColors[i], [this, i]() { this->dataColor = this->classColors[i]; }, this->textureManager->getFont("roboto"), ""));
+        }
+    }
+}
+
 void MainLoop::run()
 {
 
@@ -238,7 +276,6 @@ void MainLoop::run()
     this->gameState = GameState::InputingData;
 
     bool space = false;
-
 
     sf::Text costFunctionText;
 	sf::Text epochText;
@@ -264,10 +301,12 @@ void MainLoop::run()
             this->eventHandler(event, space);
         }
         
+        ////updates
+		this->updateNumberOfClasses();
+
+
         /// other inputs
 		this->zoomHandler();
-
-
 
         this->window.clear();
         this->drawRightHalfScreen();
@@ -297,6 +336,7 @@ void MainLoop::run()
 		this->window.draw(epochText);
 
 		this->resetInputsButton.draw(this->window);
+		this->resetTrainingButton.draw(this->window);
 		this->learningRateSlider.draw(this->window);
 		this->classDropdown.draw(this->window);
 
@@ -304,6 +344,3 @@ void MainLoop::run()
 
     }
 }
-
-
-

@@ -16,6 +16,9 @@ public:
 	ColorButton(const ColorButton& button);
 	ColorButton& operator=(const ColorButton& button);
 
+	void checkEventsDropdown(sf::RenderWindow& window, sf::Event& event);
+
+
 	void setPosition(float x, float y) override;
 
     void draw(sf::RenderWindow& window) override;
