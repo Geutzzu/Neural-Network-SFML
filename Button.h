@@ -42,7 +42,7 @@ public:
     virtual void checkHover(RenderWindow& window);
 
     virtual void setOnClick(function<void()> onClickFunction);
-	virtual void setPosition(float x, float y) { RectangleShape::setPosition(x, y); buttonText.setPosition(x, y); }
+	virtual void setPosition(float x, float y) { RectangleShape::setPosition(x, y); this->initText(); }
 	
     
 

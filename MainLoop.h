@@ -1,29 +1,32 @@
 #pragma once
 
-#include <NeuralNetwork.h>
-#include <LayerVisualizer.h>
-#include <NetworkVisualizer.h>
-#include <Neuron.h>
+#include "NeuralNetwork.h"
+#include "LayerVisualizer.h"
+#include "NetworkVisualizer.h"
+#include "Neuron.h"
 #include <set>
 #include "Slider.h"
 #include "Dropdown.h"
+#include <map>
 
 class MainLoop {
 private:
 
-	sf::RenderWindow window;
+	RenderWindow window;
 	NeuralNetwork network;
 	NetworkVisualizer<Neuron> networkVisualizer;
 	TextureManager* textureManager;
 	GameState gameState;
 	set<DataPoint> dataPoints;
-	vector<CircleShape> circles;
+	map<DataPoint, sf::CircleShape> circles;
 
 	/// buttons and sliders
 	Button resetInputsButton;
 	Button resetTrainingButton;
 	Slider learningRateSlider;
 	Dropdown classDropdown;
+	Button previousPointButton;
+	Button nextPointButton;
 
 	/// parameters
 	int epoch;
@@ -34,7 +37,12 @@ private:
 	Color dataColor;
 	vector<Color> classColors;
 	int numberClasses;
+	set<DataPoint>::iterator currentDataPoint;
 
+
+	/// highlighting
+	CircleShape highlight;
+	Clock clock;
 
 	/// views
 	sf::View plotView;
@@ -54,6 +62,7 @@ public:
 	void initializeClassDropdown();
 
 	/// functions for functionality
+	void updateHighlight();
 	void updateNumberOfClasses();
 	void drawRightHalfScreen();
 	void visualizePlot();

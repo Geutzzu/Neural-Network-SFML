@@ -105,6 +105,11 @@ public:
 		this->outputs = outputs;
 	}
 
+    const vector <double>& getInputs() const/// geter for the inputs
+    {
+		return this->inputs;
+	}
+
     bool operator<(const DataPoint& other) const
     {
         if (this->inputs[1] < other.inputs[1])

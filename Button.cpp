@@ -1,5 +1,5 @@
 
-#include <Button.h>
+#include "Button.h"
 #include <iostream>
 
 
@@ -28,9 +28,7 @@ void Button::init(float x, float y, float width, float height, Color color, Colo
 	this->buttonText.setFillColor(Color::Black);
 	this->buttonText.setPosition(x, y);
 
-	FloatRect textRect = this->buttonText.getLocalBounds();
-	this->buttonText.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
-	this->buttonText.setPosition(Vector2f(x + width / 2.0f, y + height / 2.0f));
+	this->initText();
 }
 
 
@@ -44,7 +42,10 @@ Button::Button(const Button& button) : RectangleShape(button), normalColor(butto
 	this->textureManager = TextureManager::getInstance();
 	this->font = textureManager->getFont("roboto");
 	this->buttonText.setFont(this->font);
-	this->buttonText = button.buttonText;
+	this->buttonText.setString(button.buttonText.getString());
+	this->buttonText.setCharacterSize(24);
+	this->buttonText.setFillColor(Color::Black);
+	this->initText();
 
 }
 
@@ -57,7 +58,11 @@ Button& Button::operator=(const Button& button) {
 		this->textureManager = TextureManager::getInstance();
 		this->font = textureManager->getFont("roboto");
 		this->buttonText.setFont(this->font);
-		this->buttonText = button.buttonText;
+		this->buttonText.setString(button.buttonText.getString());
+		this->buttonText.setCharacterSize(24);
+		this->buttonText.setFillColor(Color::Black);
+
+		this->initText();
 	}
 	return *this;
 }

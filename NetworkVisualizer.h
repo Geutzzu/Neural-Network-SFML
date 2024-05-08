@@ -1,8 +1,8 @@
 #pragma once
 
 
-#include <NeuralNetwork.h>
-#include <LayerVisualizer.h>
+#include "NeuralNetwork.h"
+#include "LayerVisualizer.h"
 #include "Button.h"
 #include "TextureManager.h"
 
@@ -48,6 +48,7 @@ public:
 
 	int getNumberLayers() const { return this->network.GetNumberLayers(); }
 	int getNumberOutputs() const { return this->network.GetLayer(this->network.GetNumberLayers() - 1).GetNumberOutputs(); }
+    int getTotalWidth() const { return this->network.GetNumberLayers() * 340; }
 
 };
 
