@@ -156,60 +156,82 @@ void NetworkVisualizer<T>::draw(sf::RenderWindow& window, GameState gameState, b
 
 template <typename T>
 void NetworkVisualizer<T>::addNeuron(int layerIndex) {
-    // Create a list of layer sizes for the new NeuralNetwork
+    try {
+        // Create a list of layer sizes for the new NeuralNetwork
+        std::vector<int> layerSizes;
 
-    std::vector<int> layerSizes;
+        layerSizes.push_back(2); // Input layer
 
-    layerSizes.push_back(2); // Input layer
-
-    for (int i = 0; i < this->network.GetNumberLayers(); ++i) {
-        int numNeurons = this->network.GetLayer(i).GetNumberOutputs();
-        if (i == layerIndex) {
-            ++numNeurons;
+        for (int i = 0; i < this->network.GetNumberLayers(); ++i) {
+            int numNeurons = this->network.GetLayer(i).GetNumberOutputs();
+            if (i == layerIndex) {
+                if (i == this->network.GetNumberLayers() - 1 && numNeurons >= 6) {
+                    throw std::runtime_error("Cannot add neuron: Maximum of 6 neurons for the last layer reached");
+                }
+                else if (numNeurons >= 8) {
+                    throw std::runtime_error("Cannot add neuron: Maximum of 8 neurons per layer reached");
+                }
+                ++numNeurons;
+            }
+            layerSizes.push_back(numNeurons);
         }
-        layerSizes.push_back(numNeurons);
+
+        // Create a new NeuralNetwork with an additional neuron in the specified layer
+        NeuralNetwork newNetwork(layerSizes);
+
+        // Replace the old network with the new one
+        this->network = newNetwork;
+
+        // Reinitialize the NetworkVisualizer
+        this->layers.clear();
+        this->addOrRemoveNeuron.clear();
+        this->inputNeurons.clear();
+        this->initializeValues(this->position);
     }
-
-    // Create a new NeuralNetwork with an additional neuron in the specified layer
-    NeuralNetwork newNetwork(layerSizes);
-
-    // Replace the old network with the new one
-    this->network = newNetwork;
-
-    // Reinitialize the NetworkVisualizer
-    this->layers.clear();
-    this->addOrRemoveNeuron.clear();
-    this->inputNeurons.clear();
-    this->initializeValues(this->position);
+    catch (const std::runtime_error& e) {
+        std::cout << e.what() << std::endl;
+    }
 }
 
 template <typename T>
 void NetworkVisualizer<T>::removeNeuron(int layerIndex) {
-	// Create a list of layer sizes for the new NeuralNetwork
-	std::vector<int> layerSizes;
+    try {
+        // Create a list of layer sizes for the new NeuralNetwork
+        std::vector<int> layerSizes;
 
-	layerSizes.push_back(2); // Input layer
+        layerSizes.push_back(2); // Input layer
 
-	for (int i = 0; i < this->network.GetNumberLayers(); ++i) {
-		int numNeurons = this->network.GetLayer(i).GetNumberOutputs();
-		if (i == layerIndex) {
-			--numNeurons;
-		}
-		layerSizes.push_back(numNeurons);
-	}
+        for (int i = 0; i < this->network.GetNumberLayers(); ++i) {
+            int numNeurons = this->network.GetLayer(i).GetNumberOutputs();
+            if (i == layerIndex) {
+                if (i == this->network.GetNumberLayers() - 1 && numNeurons <= 2) {
+                    throw std::runtime_error("Cannot remove neuron: Minimum of 2 neurons for the last layer reached");
+                }
+                else if (numNeurons <= 1) {
+                    throw std::runtime_error("Cannot remove neuron: Layer must have at least one neuron");
+                }
+                --numNeurons;
+            }
+            layerSizes.push_back(numNeurons);
+        }
 
-	// Create a new NeuralNetwork with an additional neuron in the specified layer
-	NeuralNetwork newNetwork(layerSizes);
+        // Create a new NeuralNetwork with one less neuron in the specified layer
+        NeuralNetwork newNetwork(layerSizes);
 
-	// Replace the old network with the new one
-	this->network = newNetwork;
+        // Replace the old network with the new one
+        this->network = newNetwork;
 
-	// Reinitialize the NetworkVisualizer
-	this->layers.clear();
-	this->addOrRemoveNeuron.clear();
-	this->inputNeurons.clear();
-	this->initializeValues(this->position);
+        // Reinitialize the NetworkVisualizer
+        this->layers.clear();
+        this->addOrRemoveNeuron.clear();
+        this->inputNeurons.clear();
+        this->initializeValues(this->position);
+    }
+    catch (const std::runtime_error& e) {
+        std::cout << e.what() << std::endl;
+    }
 }
+
 
 
 template<typename T>

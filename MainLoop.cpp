@@ -21,7 +21,7 @@ void MainLoop::initializeClassDropdown() {
 
 
 MainLoop::MainLoop() : window(sf::VideoMode(1920, 1080), "Neural Network"), network({ 2, 5, 2 }), networkVisualizer(network, sf::Vector2f(450, 200)), textureManager(TextureManager::getInstance()), gameState(GameState::InputingData), learningRateSlider(720, 40, 200, 20, learningRate, "Learning Rate"),
-classDropdown(10, 800, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color(25, 25, 25), {} , this->textureManager->getFont("roboto"), "") { /// float x, float y, float width, float height, double& value, std::string name
+classDropdown(10, 800, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color(25, 25, 25), {} , TextureManager::getInstance()->getFont("roboto"), ""), costGraph(200, 25, 200, 50) { 
 	this->window.setFramerateLimit(500);
 	this->circles = map<DataPoint, sf::CircleShape>();
 	this->dataPoints = set<DataPoint>();
@@ -37,9 +37,15 @@ classDropdown(10, 800, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color(2
         Color(128, 0, 128),     // Purple
         Color(255, 165, 0)      // Orange
     };
+	this->maxCost = 0;
+	this->graphDisplayed = true;
+	this->statsX = StandardizationCalculator();
+	this->statsY = StandardizationCalculator();
 
 	/// class dropdown
 	this->initializeClassDropdown();
+
+	/// cost graph
 	
     // Create the two views
     this->plotView = sf::View(sf::FloatRect(0, 0, window.getSize().x / 2, window.getSize().y));
@@ -54,12 +60,18 @@ classDropdown(10, 800, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color(2
     
     this->clock.restart();
 
+    this->highlightMode = false;
+
     /// buttons and sliders
-	this->resetInputsButton = Button(10, 900, 150, 50, Color(50, 50, 50), Color(105, 105, 105), [this]() { this->resetInputs(); }, this->textureManager->getFont("roboto"), "Reset Inputs");
-    this->resetTrainingButton = Button(200, 900, 180, 50, Color(50, 50, 50), Color(105, 105, 105), [this]() { this->resetTraining(); }, this->textureManager->getFont("roboto"), "Reset Training");
+	this->resetInputsButton = Button(10, 900, 150, 50, Color(50, 50, 50), Color(105, 105, 105), [this]() { this->resetInputs(); }, TextureManager::getInstance()->getFont("roboto"), "Reset Inputs");
+    this->resetTrainingButton = Button(200, 900, 180, 50, Color(50, 50, 50), Color(105, 105, 105), [this]() { this->resetTraining(); }, TextureManager::getInstance()->getFont("roboto"), "Reset Training");
+    this->toggleHighlightMode = Button(420, 900, 200, 50, Color(50, 50, 50), Color(105, 105, 105), [this]() { this->toggleHighlight(); }, TextureManager::getInstance()->getFont("roboto"), "Toggle Highlight");
     this->nextPointButton = Button(100 + this->networkVisualizer.getTotalWidth() + 50,  400 , 25, 150, Color(50, 50, 50), Color(105, 105, 105), [this]() {
         /// sets current data point to the next one in the set if possible
         try {
+            if (this->dataPoints.empty()) 
+                throw out_of_range("No elements in the set");
+
             auto nextIt = next(this->currentDataPoint); /// get the next iterator
             if (nextIt != this->dataPoints.end()) { /// if the next iterator is not the end
                 this->currentDataPoint = nextIt; /// set the current data point to the next one
@@ -77,6 +89,8 @@ classDropdown(10, 800, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color(2
     this->previousPointButton = Button(100, 400, 25, 150, Color(50, 50, 50), Color(105, 105, 105), [this]() {
         /// sets current data point to the previous one in the set if possible
         try {
+            if (this->dataPoints.empty())
+                throw out_of_range("No elements in the set");
             if (this->currentDataPoint != this->dataPoints.begin()) { /// if the current data point is not the first
                 --this->currentDataPoint; /// move the current data point to the previous one
             }
@@ -90,6 +104,8 @@ classDropdown(10, 800, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color(2
         }
     }, this->textureManager->getFont("roboto"), "<");
 
+	
+
 }
 
 
@@ -98,7 +114,7 @@ void MainLoop::updateHighlight() {
     if (!this->dataSetEmpty) {
         // Calculate a sinusoidal value based on the elapsed time
         float time = this->clock.getElapsedTime().asSeconds();
-        float alpha = 127.5f * std::sin(2.0f * 3.14159f * time) + 127.5f;
+        float alpha = 127.5f * sin(2.0f * 3.14159f * time) + 127.5f;
 
         // Get the circle corresponding to the current data point
         sf::CircleShape& circle = this->circles[*this->currentDataPoint];
@@ -107,12 +123,33 @@ void MainLoop::updateHighlight() {
         this->highlight.setRadius(circle.getRadius());
         this->highlight.setPosition(circle.getPosition().x + circle.getRadius() - this->highlight.getRadius(),
         circle.getPosition().y + circle.getRadius() - this->highlight.getRadius());
-        this->highlight.setFillColor(sf::Color::Transparent);
+        this->highlight.setFillColor(Color::Transparent);
         this->highlight.setOutlineThickness(3);
         this->highlight.setOutlineColor(sf::Color(255, 255, 0, static_cast<sf::Uint8>(alpha)));
     }
 }
 
+
+void MainLoop::toggleHighlight() {
+	this->highlightMode = !this->highlightMode;
+}
+
+/// for standardization
+double MainLoop::calculateMeanX() {
+    return this->statsX.getMean();
+}
+
+double MainLoop::calculateStdDevX() {
+    return this->statsX.getStandardDeviation();
+}
+
+double MainLoop::calculateMeanY() {
+    return this->statsY.getMean();
+}
+
+double MainLoop::calculateStdDevY() {
+    return this->statsY.getStandardDeviation();
+}
 
 void MainLoop::resetInputs() {
 	this->dataPoints.clear();
@@ -120,12 +157,17 @@ void MainLoop::resetInputs() {
 	this->gameState = GameState::InputingData;
 	this->dataSetEmpty = true;
     this->epoch = 0;
+    this->maxCost = 0;
+	this->costGraph.reset();
 }
 
 void MainLoop::resetTraining() {
 	this->network.InitializeWeightsAndBiases();
 	this->epoch = 0;
+	this->maxCost = 0;
 	this->gameState = GameState::InputingData;
+    this->costGraph.reset();
+   
 }
 
 void MainLoop::drawRightHalfScreen() {
@@ -136,6 +178,13 @@ void MainLoop::drawRightHalfScreen() {
 	rectangle.setFillColor(Color::White);
 
 	this->window.draw(rectangle);
+}
+
+const double& MainLoop::getCostPercentage() {
+	if (this->maxCost != 0)
+	    return this->network.CostFunction(this->dataPoints) / this->maxCost;
+	else
+		return 0;
 }
 
 void MainLoop::visualizePlot()
@@ -194,23 +243,36 @@ void MainLoop::eventHandler(sf::Event& event, bool& space) {
     }
 
     /// buttons and sliders
-    sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
+    sf::Vector2i pixelPos = sf::Mouse::getPosition(this->window);
     sf::Vector2f worldPos = window.mapPixelToCoords(pixelPos, this->networkView);
+	sf::Vector2f worldPosDefault = window.mapPixelToCoords(pixelPos, this->window.getDefaultView());
 
     sf::Event worldEvent = event;
+	Event defaultWorldEvent = event;
+
     worldEvent.mouseButton.x = worldPos.x;
     worldEvent.mouseButton.y = worldPos.y;
+	defaultWorldEvent.mouseButton.x = worldPosDefault.x;
+	defaultWorldEvent.mouseButton.y = worldPosDefault.y;
 
-	this->resetInputsButton.checkEvents(this->window);
-	this->resetTrainingButton.checkEvents(this->window);
-    this->previousPointButton.checkEvents(this->window, worldEvent);
-    this->nextPointButton.checkEvents(this->window, worldEvent);
+	this->resetInputsButton.checkEvents(this->window, defaultWorldEvent);
+	this->resetTrainingButton.checkEvents(this->window, defaultWorldEvent);
+    this->toggleHighlightMode.checkEvents(this->window, defaultWorldEvent);
+
+    if (this->highlightMode) {
+        this->previousPointButton.checkEvents(this->window, worldEvent);
+        this->nextPointButton.checkEvents(this->window, worldEvent);
+    }
+
+	
+
 
 	this->networkVisualizer.checkEvents(this->window, event, this->networkView);
 
 	this->learningRateSlider.handleEvent(event);
 
 	this->classDropdown.checkEvents(this->window, event);
+
 
     /*if (event.KeyPressed && event.key.code == sf::Keyboard::L && space == false)
     {
@@ -252,13 +314,30 @@ void MainLoop::eventHandler(sf::Event& event, bool& space) {
             circle.setPosition(event.mouseButton.x, event.mouseButton.y);
             circle.setOutlineThickness(2); // Set the thickness of the outline
             circle.setOutlineColor(sf::Color::White); // Set the color of the outline
+
             double normalizedX = event.mouseButton.x / static_cast<double>(this->window.getSize().x / 2) - 1;
             double normalizedY = event.mouseButton.y / static_cast<double>(this->window.getSize().y);
+
+            double x = event.mouseButton.x;
+            double y = event.mouseButton.y;
+
+            this->statsX.add(x);
+            this->statsY.add(y);
+
+			/// double meanX = this->calculateMeanX(); /// for standardization
+			/// double stdDevX = this->calculateStdDevX(); /// for standardization
+			/// double meanY = this->calculateMeanY(); /// for standardization
+			/// double stdDevY = this->calculateStdDevY(); /// for standardization
+
+            /// double standardizedX = (event.mouseButton.x - meanX) / stdDevX;
+            /// double standardizedY = (event.mouseButton.y - meanY) / stdDevY;
+
+
             for (int i = 0; i < this->numberClasses; i++) {
                 if (this->dataColor == this->classColors[i]) {
                     vector<double> outputs(this->numberClasses, 0);
                     outputs[i] = 1;
-                    DataPoint point({ normalizedX, normalizedY }, outputs);
+                    DataPoint point({ normalizedX, normalizedY }, outputs); /// to change
                     this->dataPoints.insert(point);
                     this->circles[point] = circle;
                     if (this->dataSetEmpty)
@@ -277,9 +356,21 @@ void MainLoop::eventHandler(sf::Event& event, bool& space) {
             this->networkView.zoom(1.1f); // Zoom out
     }
 
-    if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter) {
+    if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter && this->gameState == GameState::InputingData) {
         this->gameState = GameState::Training;
+		this->maxCost = this->network.CostFunction(this->dataPoints);
+        this->costGraph.reset();
     }
+
+	if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::G) /// for testing purposes
+    {
+        this->costGraph.reset();
+	}
+    if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::C) /// for testing purposes
+    {
+		this->graphDisplayed = !this->graphDisplayed;
+    }
+
 
 }
 void MainLoop::zoomHandler() {
@@ -382,7 +473,8 @@ void MainLoop::run()
 
         ////updates
         this->updateNumberOfClasses();
-        this->updateHighlight();
+        if(this->highlightMode) this->updateHighlight();
+		if(this->graphDisplayed) this->costGraph.update(this->getCostPercentage()); /// cost graph update
 
         this->nextPointButton.setPosition(100 + this->networkVisualizer.getTotalWidth() + 150, 300);
 
@@ -403,7 +495,8 @@ void MainLoop::run()
         }
         else if(!this->dataSetEmpty){
             network.CalculateOutputs((*this->currentDataPoint).getInputs());
-            this->window.draw(this->highlight);
+			if (this->highlightMode) this->window.draw(this->highlight);
+                
         }
         for (auto& pair : this->circles) {
             this->window.draw(pair.second);
@@ -416,12 +509,15 @@ void MainLoop::run()
         /// neural net visualization and neural net view
         this->window.setView(this->networkView);
         this->networkVisualizer.draw(this->window, this->gameState, this->dataSetEmpty); /// this visualizes the neural network
-        this->previousPointButton.draw(this->window);
-        this->nextPointButton.draw(this->window);
-
+        
+        if (this->highlightMode) {
+			this->previousPointButton.draw(this->window);
+            this->nextPointButton.draw(this->window);
+        }
+			
         /// text and buttons
         this->window.setView(this->window.getDefaultView());
-        costFunctionText.setString("Cost: " + std::to_string(this->network.CostFunction(this->dataPoints)));
+        costFunctionText.setString("Loss: " + std::to_string(this->getCostPercentage()));
         this->window.draw(costFunctionText);
 		epochText.setString("Epoch: " + std::to_string(this->epoch));
 		this->window.draw(epochText);
@@ -430,6 +526,10 @@ void MainLoop::run()
 		this->resetTrainingButton.draw(this->window);
 		this->learningRateSlider.draw(this->window);
 		this->classDropdown.draw(this->window);
+		this->toggleHighlightMode.draw(this->window);
+
+        /// graph
+		if(this->graphDisplayed) this->costGraph.draw(this->window);
 
         this->window.display();
 

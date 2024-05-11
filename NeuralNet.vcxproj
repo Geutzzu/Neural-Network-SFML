@@ -134,6 +134,7 @@
     <ClCompile Include="CircleButton.cpp" />
     <ClCompile Include="ColorButton.cpp" />
     <ClCompile Include="Dropdown.cpp" />
+    <ClCompile Include="Graph.cpp" />
     <ClCompile Include="LayerData.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MainLoop.cpp" />
@@ -153,6 +154,7 @@
     <ClInclude Include="DataPoint.h" />
     <ClInclude Include="Dropdown.h" />
     <ClInclude Include="ColorButton.h" />
+    <ClInclude Include="Graph.h" />
     <ClInclude Include="MainLoop.h" />
     <ClInclude Include="Neuron.h" />
     <ClInclude Include="Layer.h" />
@@ -162,6 +164,7 @@
     <ClInclude Include="NetworkVisualizer.h" />
     <ClInclude Include="NeuralNetwork.h" />
     <ClInclude Include="Slider.h" />
+    <ClInclude Include="StandardizationCalculator.h" />
     <ClInclude Include="TextureManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -8,6 +8,8 @@
 #include "Slider.h"
 #include "Dropdown.h"
 #include <map>
+#include "Graph.h"
+#include "StandardizationCalculator.h"
 
 class MainLoop {
 private:
@@ -18,7 +20,10 @@ private:
 	TextureManager* textureManager;
 	GameState gameState;
 	set<DataPoint> dataPoints;
-	map<DataPoint, sf::CircleShape> circles;
+	map<DataPoint, CircleShape> circles;
+	Graph costGraph;
+	StandardizationCalculator statsX;
+	StandardizationCalculator statsY;
 
 	/// buttons and sliders
 	Button resetInputsButton;
@@ -27,6 +32,7 @@ private:
 	Dropdown classDropdown;
 	Button previousPointButton;
 	Button nextPointButton;
+	Button toggleHighlightMode;
 
 	/// parameters
 	int epoch;
@@ -34,10 +40,13 @@ private:
 
 	/// misc
 	bool dataSetEmpty;
+	bool highlightMode;
+	bool graphDisplayed;
 	Color dataColor;
 	vector<Color> classColors;
 	int numberClasses;
 	set<DataPoint>::iterator currentDataPoint;
+	double maxCost;
 
 
 	/// highlighting
@@ -45,8 +54,8 @@ private:
 	Clock clock;
 
 	/// views
-	sf::View plotView;
-	sf::View networkView;
+	View plotView;
+	View networkView;
 
 
 	MainLoop();
@@ -71,6 +80,14 @@ public:
 	void trainingState();
 	void resetInputs();
 	void resetTraining();
+	void toggleHighlight();
+	const double& getCostPercentage();
+
+	/// standardization
+	double calculateMeanX();
+	double calculateMeanY();
+	double calculateStdDevX();
+	double calculateStdDevY();
 
 
 	/// main loop

@@ -30,6 +30,7 @@
 #include "MainLoop.h"
 #include "ColorButton.h"
 #include "Dropdown.h"
+#include "Graph.h"
 
 
 
@@ -46,6 +47,7 @@ int main() {
 
 	MainLoop* mainLoop = MainLoop::getInstance();
 	mainLoop->run();
+
 
 
 	/*
