@@ -48,6 +48,9 @@ private:
 	set<DataPoint>::iterator currentDataPoint;
 	double maxCost;
 
+	/// plot visualization
+	VertexArray pixels;
+	int pixelSize;
 
 	/// highlighting
 	CircleShape highlight;

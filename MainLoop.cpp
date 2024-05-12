@@ -42,6 +42,13 @@ classDropdown(10, 800, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color(2
 	this->statsX = StandardizationCalculator();
 	this->statsY = StandardizationCalculator();
 
+
+    /// plot visualization
+    this->pixelSize = 16;
+    int width = this->window.getSize().x / (2 * this->pixelSize);
+    int height = this->window.getSize().y / this->pixelSize;
+    this->pixels = VertexArray(Triangles, width * height * 6); // 6 vertices for each pixel (2 triangles)
+
 	/// class dropdown
 	this->initializeClassDropdown();
 
@@ -189,25 +196,13 @@ const double& MainLoop::getCostPercentage() {
 
 void MainLoop::visualizePlot()
 {
-    int pixelSize = 16; // Adjust this to make the pixels larger or smaller
     int width = this->window.getSize().x / (2 * pixelSize);
     int height = this->window.getSize().y / pixelSize;
 
-    // Define a vector of colors for each output
-    vector<Color> colors = { Color::Blue, Color::Red, Color::Green, Color::Yellow, Color::Magenta, Color::Cyan };
-
-    VertexArray container(Points, width * height);
-    for (int i = 0; i < width * height; i++) {
-        container[i].position = Vector2f((i % width) * pixelSize, (i / width) * pixelSize) + Vector2f(this->window.getSize().x / 2, 0);
-        container[i].color = Color::White;
-    }
-    double input_1, input_2;
-    DataPoint output;
-
     for (int x = 0; x < width; x++) {
         for (int y = 0; y < height; y++) {
-            input_1 = x / static_cast<double>(width);
-            input_2 = y / static_cast<double>(height);
+            double input_1 = x / static_cast<double>(width);
+            double input_2 = y / static_cast<double>(height);
             vector<double> outputs = this->network.CalculateOutputs({ input_1, input_2 });
 
             // Find the index of the maximum output
@@ -218,20 +213,30 @@ void MainLoop::visualizePlot()
                 outputs[i] = (i == maxIndex) ? 1 : 0;
             }
 
-            output = DataPoint({ input_1, input_2 }, outputs);
+            // Get the color for this pixel
+            Color color = this->classColors[maxIndex];
 
-            Vertex& pixel = container[x + y * width];
-            pixel.color = colors[maxIndex];
+            // Calculate the position of this pixel
+            Vector2f pos(x * this->pixelSize, y * this->pixelSize);
+
+            // Set the position and color of each vertex
+            int i = (x + y * width) * 6; // index for this pixel
+            // First triangle
+            this->pixels[i + 0].position = pos + Vector2f(this->window.getSize().x / 2, 0);
+            this->pixels[i + 1].position = pos + Vector2f(this->pixelSize, 0) + Vector2f(this->window.getSize().x / 2, 0);
+            this->pixels[i + 2].position = pos + Vector2f(0, this->pixelSize) + Vector2f(this->window.getSize().x / 2, 0);
+            // Second triangle
+            this->pixels[i + 3].position = pos + Vector2f(0, this->pixelSize) + Vector2f(this->window.getSize().x / 2, 0);
+            this->pixels[i + 4].position = pos + Vector2f(this->pixelSize, 0) + Vector2f(this->window.getSize().x / 2, 0);
+            this->pixels[i + 5].position = pos + Vector2f(this->pixelSize, this->pixelSize) + Vector2f(this->window.getSize().x / 2, 0);
+            for (int j = 0; j < 6; j++) {
+                this->pixels[i + j].color = color;
+            }
         }
     }
 
-    // Draw the container
-    for (int i = 0; i < container.getVertexCount(); i++) {
-        sf::RectangleShape pixel(sf::Vector2f(pixelSize, pixelSize));
-        pixel.setPosition(container[i].position);
-        pixel.setFillColor(container[i].color);
-        this->window.draw(pixel);
-    }
+    // Draw the pixels
+    this->window.draw(this->pixels);
 
     this->network.CalculateOutputs((*this->currentDataPoint).getInputs());
 }
@@ -263,8 +268,6 @@ void MainLoop::eventHandler(sf::Event& event, bool& space) {
         this->previousPointButton.checkEvents(this->window, worldEvent);
         this->nextPointButton.checkEvents(this->window, worldEvent);
     }
-
-	
 
 
 	this->networkVisualizer.checkEvents(this->window, event, this->networkView);

@@ -12,9 +12,6 @@ enum class GameState {
 };
 
 
-
-using namespace std;
-
 template <typename T>
 class NetworkVisualizer {
 private:
@@ -108,6 +105,18 @@ void NetworkVisualizer<T>::draw(sf::RenderWindow& window, GameState gameState, b
     double minActivation = *std::min_element(activations.begin(), activations.end());
     double maxActivation = *std::max_element(activations.begin(), activations.end());
 
+    double minWeight = 0;
+	double maxWeight = 0;
+
+
+
+    for (int i = 0; i < this->network.GetNumberLayers(); i++) {
+		minWeight = std::min(minWeight, *std::min_element(this->network.GetLayer(i).GetWeights().begin(), this->network.GetLayer(i).GetWeights().end()));
+		maxWeight = std::max(maxWeight, *std::max_element(this->network.GetLayer(i).GetWeights().begin(), this->network.GetLayer(i).GetWeights().end()));
+	}   
+
+	
+
 
 	if (gameState == GameState::InputingData) {
         for (int i = 0; i < this->layers.size(); i++) {
@@ -138,7 +147,7 @@ void NetworkVisualizer<T>::draw(sf::RenderWindow& window, GameState gameState, b
     }
 
     for (int i = 0; i < this->layers.size(); i++) {
-        this->layers[i].drawConnections(window);
+        this->layers[i].drawConnections(window, minWeight, maxWeight);
     }
 
 

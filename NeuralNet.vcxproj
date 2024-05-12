@@ -145,6 +145,7 @@
     <ClCompile Include="Neuron.cpp" />
     <ClCompile Include="Slider.cpp" />
     <ClCompile Include="TextureManager.cpp" />
+    <ClCompile Include="ThreadPool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Activation.h" />
@@ -166,6 +167,7 @@
     <ClInclude Include="Slider.h" />
     <ClInclude Include="StandardizationCalculator.h" />
     <ClInclude Include="TextureManager.h" />
+    <ClInclude Include="ThreadPool.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -38,12 +38,17 @@ Layer::Layer(int numberInputs, int numberOutputs) {
 }
 
 void Layer::InitializeWeightsAndBiases() {
-	/// randomly initialize the weights and biases
+	/// Xavier initialization of the weights and biases
+	double variance = 2.0 / (double)this->numberInputs;
+	double standardDeviation = sqrt(variance);
+	std::default_random_engine generator;
+	std::normal_distribution<double> distribution(0.0, standardDeviation);
+
 	for (int i = 0; i < this->weights.size(); i++) {
-		this->weights[i] = (rand() % 1000) / 1000.0 - 0.5; /// random number between -0.5 and 0.5
+		this->weights[i] = distribution(generator);
 	}
 	for (int i = 0; i < this->biases.size(); i++) {
-		this->biases[i] = (rand() % 1000) / 1000.0 - 0.5; /// random number between -0.5 and 0.5
+		this->biases[i] = distribution(generator);
 	}
 }
 

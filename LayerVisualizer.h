@@ -13,7 +13,7 @@ public:
     LayerVisualizer(const Layer& layer, sf::Vector2f position);
 
     void drawNeurons(sf::RenderWindow& window);
-    void drawConnections(sf::RenderWindow& window);
+    void drawConnections(sf::RenderWindow& window, double minWeight, double maxWeight);
 };
 
 template <typename T>
@@ -41,16 +41,13 @@ void LayerVisualizer<T>::drawNeurons(sf::RenderWindow& window) {
 }
 
 template <typename T>
-void LayerVisualizer<T>::drawConnections(sf::RenderWindow& window) {
+void LayerVisualizer<T>::drawConnections(sf::RenderWindow& window, double minWeight, double maxWeight) {
     int numberInputs = this->layer.GetNumberInputs();
     int numberOutputs = this->layer.GetNumberOutputs();
     const vector<double>& weights = this->layer.GetWeights();
 
     Vector2f offset = Vector2f(-280, -40); /// offset for the connections
 
-    // Find the minimum and maximum weights
-    double minWeight = *min_element(weights.begin(), weights.end()); /// is computationally expensive - can be made in neural net class
-    double maxWeight = *max_element(weights.begin(), weights.end()); /// is computationally expensive - only for ilustration
 
     for (int i = 0; i < numberInputs; i++) {
         for (int j = 0; j < numberOutputs; j++) {

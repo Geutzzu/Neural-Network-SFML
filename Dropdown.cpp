@@ -109,8 +109,6 @@ void Dropdown::checkEvents(sf::RenderWindow& window, sf::Event& event) {
             /// if the button was clicked we set the selected button to the clicked button
             if (button->getIsClicked(window, event)) {
 
-				
-
                 /// check the type of the button
                 /// if it is a color button we create a new color button
                 /// if it is a circle button we create a new circle button

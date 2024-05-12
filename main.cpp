@@ -1,3 +1,7 @@
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -34,6 +38,9 @@
 
 
 
+
+
+
 using namespace std;
 using namespace sf;
 
@@ -41,6 +48,7 @@ using namespace sf;
 
 int main() {
 
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 
 	TextureManager* textureManager = TextureManager::getInstance();
 	textureManager->loadFonts();
@@ -222,6 +230,6 @@ int main() {
 	/// for each circle that we place on the screen we create a data point
     
 	*/
-
+	
 	return 0;
 }
