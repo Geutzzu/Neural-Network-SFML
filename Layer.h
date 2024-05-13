@@ -1,6 +1,3 @@
-
-
-
 #pragma once
 
 
@@ -43,6 +40,9 @@ private:
 	vector <double> costGradientWeights; //// gradient for the weights - each weight will have a gradient pointing towards a local minimum
 	vector <double> costGradientBiases; //// gradient for the biases - each bias will have a gradient pointing towards a local minimum
 
+	vector<double> prevDeltaWeights; /// previous delta weights
+	vector<double> prevDeltaBiases; /// we use them so we can store the previous values so we can calculate the momentum
+
 	LayerData layerData; /// data for the layer - inputs, weighted inputs, activations
 
 public:
@@ -53,7 +53,7 @@ public:
 
 	vector<double> CalculateOutputs(const vector<double>& inputs);
 	void UpdateGradients(const vector<double>& specificValues);
-	void ApplyGradients(double learningRate);
+	void ApplyGradients(double learningRate, double momentum);
 	/// vector<double> CalculateOutputs(const vector<double>& inputs);
 
 	double GetWeight(int inputIndex, int outputIndex) const { return this->weights[inputIndex + outputIndex * this->numberInputs]; }
@@ -66,7 +66,7 @@ public:
 	double& GetWeightRef(int inputIndex, int outputIndex) { return this->weights[inputIndex + outputIndex * this->numberInputs]; }
 	double& GetBiasRef(int outputIndex) { return this->biases[outputIndex]; }
 
-	const vector <double>& GetWeights() const  { return this->weights; }
+	const vector <double>& GetWeights() const { return this->weights; }
 	const vector <double>& GetBiases() const { return this->biases; }
 
 	const LayerData& GetLayerData() const { return this->layerData; }
@@ -77,4 +77,3 @@ public:
 
 
 };
-

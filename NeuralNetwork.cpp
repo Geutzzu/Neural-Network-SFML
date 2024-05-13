@@ -46,7 +46,7 @@ vector<double> NeuralNetwork::CalculateOutputs(const vector<double>& inputs) { /
 	return outputs;
 }
 
-int NeuralNetwork::Classify(const vector<double>& inputs){ /// classify the inputs from 1 
+int NeuralNetwork::Classify(const vector<double>& inputs) { /// classify the inputs from 1 
 	vector<double> outputs = CalculateOutputs(inputs); /// calculate the outputs of the neural network
 
 	int classification = 0; /// initialize the classification to 0
@@ -58,7 +58,7 @@ int NeuralNetwork::Classify(const vector<double>& inputs){ /// classify the inpu
 	return classification; /// return the classification
 }
 
-double NeuralNetwork::CostFunction(const DataPoint& dataPoint){ /// calculate the cost of the data point
+double NeuralNetwork::CostFunction(const DataPoint& dataPoint) { /// calculate the cost of the data point
 	vector<double> outputs = CalculateOutputs(dataPoint.GetInputs()); /// calculate the outputs of the neural network
 	double cost = 0; /// initialize the cost to 0
 	Cost<CostType::MeanSquareError> costFunction; /// initialize the cost function
@@ -68,7 +68,7 @@ double NeuralNetwork::CostFunction(const DataPoint& dataPoint){ /// calculate th
 	return cost; /// return the cost
 }
 
-double NeuralNetwork::CostFunction(const set<DataPoint>& dataPoints){ /// calculate the cost of the data points
+double NeuralNetwork::CostFunction(const set<DataPoint>& dataPoints) { /// calculate the cost of the data points
 	double cost = 0; /// initialize the cost to 0
 	for (const auto& dataPoint : dataPoints) { /// for each data point
 		cost += CostFunction(dataPoint); /// add the cost of the data point to the cost
@@ -94,18 +94,19 @@ void NeuralNetwork::UpdateGradientsForDataPoint(const DataPoint& dataPoint) { //
 }
 
 
-void NeuralNetwork::Learn(vector<DataPoint> trainingBatch, double learningRate) { /// learn from a batch of data points
-	for (int i = 0; i < trainingBatch.size(); i++) { /// for each data point
-		this->UpdateGradientsForDataPoint(trainingBatch[i]); /// update the gradients for the data point
+void NeuralNetwork::Learn(vector<DataPoint> trainingBatch, double learningRate, double momentum) {
+	for (int i = 0; i < trainingBatch.size(); i++) {
+		this->UpdateGradientsForDataPoint(trainingBatch[i]);
 	}
-	this->ApplyAllGradients(learningRate / trainingBatch.size()); /// apply the gradients to the weights and biases -  we need to avarage it out
+	this->ApplyAllGradients(learningRate / trainingBatch.size(), momentum);
 }
 
-void NeuralNetwork::ApplyAllGradients(double learningRate) { /// apply the gradients to the weights and biases
-	for (int i = 0; i < this->layers.size(); i++) { /// for each layer
-		this->layers[i].ApplyGradients(learningRate); /// apply the gradients to the layer
+void NeuralNetwork::ApplyAllGradients(double learningRate, double momentum) {
+	for (int i = 0; i < this->layers.size(); i++) {
+		this->layers[i].ApplyGradients(learningRate, momentum);
 	}
 }
+
 
 
 vector <double> NeuralNetwork::CalculateOutputSpecificValues(const vector<double>& expectedOutputs) {

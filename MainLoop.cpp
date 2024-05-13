@@ -413,7 +413,7 @@ void MainLoop::trainingState() {
     }
     this->network.UpdateGradientsForDataPoint(*this->currentDataPoint); /// update the gradients for the current data point
 
-    this->network.ApplyAllGradients(this->learningRate / this->dataPoints.size()); /// apply the gradients to the weights and biases
+    this->network.ApplyAllGradients(this->learningRate / this->dataPoints.size(), 0.9); /// apply the gradients to the weights and biases
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
     {

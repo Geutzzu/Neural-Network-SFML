@@ -62,6 +62,7 @@ private:
 
 
 	MainLoop();
+	~MainLoop() = default;
 
 public:
 

@@ -31,8 +31,13 @@ Layer::Layer(int numberInputs, int numberOutputs) {
 	this->numberOutputs = numberOutputs;
 	this->weights.resize(numberInputs * numberOutputs);
 	this->biases.resize(numberOutputs);
+
 	this->costGradientBiases.resize(numberOutputs);
 	this->costGradientWeights.resize(numberInputs * numberOutputs);
+
+	this->prevDeltaBiases.resize(numberOutputs);
+	this->prevDeltaWeights.resize(numberInputs * numberOutputs);
+
 	this->layerData = LayerData(numberInputs, numberOutputs);
 
 }
@@ -71,6 +76,24 @@ void Layer::InitializeWeightsAndBiases() {
 	return weightedInputs; /// return the outputs
 }*/
 
+/*vector<double> Layer::CalculateOutputs(const vector<double>& inputs) const {
+	vector<double> weightedInputs(this->numberOutputs); /// initialize the outputs to the number of outputs
+	for (int i = 0; i < this->numberOutputs; i++) { /// for each output
+		double weightedInput = this->biases[i]; /// initialize the output to the bias
+		for (int j = 0; j < this->numberInputs; j++) { /// for each input
+			weightedInput += inputs[j] * GetWeight(j, i); /// add the input * weight to the output
+		}
+		weightedInputs[i] = weightedInput; /// set the output to the output
+	}
+	Activation<ActivationType::Sigmoid> function; /// initialize the activation function
+	vector<double> activations(this->numberOutputs); /// initialize the outputs to the number of outputs
+	for (int i = 0; i < weightedInputs.size(); i++) { /// for each output
+		weightedInputs[i] = function.Activate(activations, i); /// activate the output
+	}
+
+	return weightedInputs; /// return the outputs
+}*/
+
 vector<double> Layer::CalculateOutputs(const vector<double>& inputs) {
 	this->layerData.SetInputs(inputs); /// set the inputs of the layer data
 	for (int i = 0; i < this->numberOutputs; i++) { /// for each output
@@ -90,7 +113,7 @@ vector<double> Layer::CalculateOutputs(const vector<double>& inputs) {
 
 
 void Layer::UpdateGradients(const vector<double>& specificValues) {
-	
+
 	double partialDerivative = 0;
 
 	for (int i = 0; i < this->numberOutputs; i++) {
@@ -105,13 +128,17 @@ void Layer::UpdateGradients(const vector<double>& specificValues) {
 }
 
 
-void Layer::ApplyGradients(double learningRate) {
+void Layer::ApplyGradients(double learningRate, double momentum) {
 	for (int i = 0; i < this->numberOutputs; i++) {
 		for (int j = 0; j < this->numberInputs; j++) {
-			this->weights[j + i * this->numberInputs] -= learningRate * this->costGradientWeights[j + i * this->numberInputs]; /// subtract the gradient from the weight
-			this->costGradientWeights[j + i * this->numberInputs] = 0; /// reset the gradient
+			double deltaWeight = learningRate * this->costGradientWeights[j + i * this->numberInputs] + momentum * this->prevDeltaWeights[j + i * this->numberInputs];
+			this->weights[j + i * this->numberInputs] -= deltaWeight;
+			this->prevDeltaWeights[j + i * this->numberInputs] = deltaWeight;
+			this->costGradientWeights[j + i * this->numberInputs] = 0;
 		}
-		this->biases[i] -= learningRate * this->costGradientBiases[i]; /// subtract the gradient from the bias
-		this->costGradientBiases[i] = 0; /// reset the gradient
+		double deltaBias = learningRate * this->costGradientBiases[i] + momentum * this->prevDeltaBiases[i];
+		this->biases[i] -= deltaBias;
+		this->prevDeltaBiases[i] = deltaBias;
+		this->costGradientBiases[i] = 0;
 	}
 }

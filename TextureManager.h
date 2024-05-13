@@ -11,6 +11,7 @@ private:
 
     // Private constructor
     TextureManager();
+	~TextureManager() = default;
 
 public:
     // Delete copy constructor and assignment operator
@@ -26,4 +27,6 @@ public:
     void loadCardTextures();
     void loadFont(const std::string& name, const std::string& filename);
     void loadFonts();
+
+    
 };

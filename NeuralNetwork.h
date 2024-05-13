@@ -51,9 +51,9 @@ public:
 
 	vector <double> CalculateHiddenLayerOutputSpecificValues(const vector<double>& oldSpecificValues, int oldIndex); /// we need the old specific values to calculate the new specific values
 
-	void Learn(vector<DataPoint> trainingBatch, double learningRate); /// learn from a batch of data points
+	void Learn(vector<DataPoint> trainingBatch, double learningRate, double momentum); /// learn from a batch of data points
 
-	void ApplyAllGradients(double learningRate); /// apply the gradients to the weights and biases
+	void ApplyAllGradients(double learningRate, double momentum); /// apply the gradients to the weights and biases
 
 	vector <DataPoint> ClassifyAll(const vector<DataPoint>& dataPoints); /// classify all the data points
 
@@ -65,7 +65,7 @@ public:
 
 	/// geter for reference (ruins encapsulation)
 	/// Layer& GetLayerRef(int index) { return this->layers[index]; }
-	
+
 	const LayerData& GetLayerData(int index) const;
 
 	const Layer& GetLayer(int index) const;
