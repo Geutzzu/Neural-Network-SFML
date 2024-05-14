@@ -48,15 +48,17 @@ void LayerVisualizer<T>::drawConnections(sf::RenderWindow& window, double minWei
 
     Vector2f offset = Vector2f(-280, -40); /// offset for the connections
 
-
     for (int i = 0; i < numberInputs; i++) {
         for (int j = 0; j < numberOutputs; j++) {
             double weight = weights[i * numberOutputs + j]; // Get the weight for the current connection
 
             // Normalize the weight to the range [0, 1] and scale it to the desired line width range
-            float lineWidth = 10.0f * ((std::abs(weight) - minWeight) / (maxWeight - minWeight));
+            float lineWidth = 10.0f * ((abs(weight) - minWeight) / (maxWeight - minWeight));
 
-            sf::Color lineColor = weight >= 0 ? sf::Color::Blue : sf::Color::Red; // Set the line color based on the weight value
+            // Calculate the alpha value based on the absolute value of the weight
+            sf::Uint8 alpha = static_cast<Uint8>(255 * min(1.0, abs(weight)));
+
+            sf::Color lineColor = weight >= 0 ? Color(0, 0, 255, alpha) : Color(255, 0, 0, alpha); // Set the line color based on the weight value
 
             sf::Vector2f start(this->position.x + offset.x, this->position.y + i * 100 - offset.y);
             sf::Vector2f end(this->position.x + 300 + offset.x, this->position.y + j * 100 - offset.y);

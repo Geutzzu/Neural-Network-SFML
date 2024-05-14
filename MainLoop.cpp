@@ -115,7 +115,6 @@ classDropdown(10, 800, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color(2
 }
 
 
-
 void MainLoop::updateHighlight() {
     if (!this->dataSetEmpty) {
         // Calculate a sinusoidal value based on the elapsed time
@@ -130,8 +129,8 @@ void MainLoop::updateHighlight() {
         this->highlight.setPosition(circle.getPosition().x + circle.getRadius() - this->highlight.getRadius(),
         circle.getPosition().y + circle.getRadius() - this->highlight.getRadius());
         this->highlight.setFillColor(Color::Transparent);
-        this->highlight.setOutlineThickness(3);
-        this->highlight.setOutlineColor(sf::Color(255, 255, 0, static_cast<sf::Uint8>(alpha)));
+        this->highlight.setOutlineThickness(6);
+        this->highlight.setOutlineColor(sf::Color(0, 0, 0, static_cast<sf::Uint8>(alpha)));
     }
 }
 
@@ -393,6 +392,20 @@ void MainLoop::zoomHandler() {
         this->networkView.move(0, 10); // Move down
     }
 
+    static sf::Vector2i lastMousePosition = sf::Mouse::getPosition(this->window);
+
+    if (sf::Mouse::isButtonPressed(sf::Mouse::Right)) {
+        sf::Vector2i currentMousePosition = sf::Mouse::getPosition(this->window);
+
+        // Check if the cursor is on the left half of the window
+        if (currentMousePosition.x < this->window.getSize().x / 2) {
+            sf::Vector2i delta = lastMousePosition - currentMousePosition;
+
+            this->networkView.move(static_cast<float>(delta.x), static_cast<float>(delta.y));
+        }
+    }
+
+    lastMousePosition = sf::Mouse::getPosition(this->window);
 
 }
 
