@@ -19,6 +19,7 @@ private:
     std::vector<LayerVisualizer<T>> layers;
     std::vector<pair<Button, Button> > addOrRemoveNeuron;
 	std::pair<Button, Button> addOrRemoveLayer;
+    sf::Text layersText;
     std::vector<T> inputNeurons;
     sf::Vector2f position;
 	TextureManager* textureManager;
@@ -74,8 +75,20 @@ void NetworkVisualizer<T>::initializeValues(sf::Vector2f position) {
 
 		this->addOrRemoveNeuron.push_back(make_pair(addNeuronButton, removeNeuronButton));
     }
-	Button addLayerButton(position.x + (this->network.GetNumberLayers() - 1) * 340 - 23, position.y + 500, 50, 50, Color(128, 128, 128), Color(160, 160, 160), [this]() { this->addLayer(); }, textureManager->getFont("roboto"), "+");
-	Button removeLayerButton(position.x + (this->network.GetNumberLayers() - 1) * 340 + 75 - 23, position.y + 500, 50, 50, Color(128, 128, 128), Color(160, 160, 160), [this]() { this->removeLayer(); }, textureManager->getFont("roboto"), "-");
+
+	
+	///Button addLayerButton(position.x + (this->network.GetNumberLayers() - 1) * 340 - 23, position.y + 500, 50, 50, Color(128, 128, 128), Color(160, 160, 160), [this]() { this->addLayer(); }, textureManager->getFont("roboto"), "+");
+	///Button removeLayerButton(position.x + (this->network.GetNumberLayers() - 1) * 340 + 75 - 23, position.y + 500, 50, 50, Color(128, 128, 128), Color(160, 160, 160), [this]() { this->removeLayer(); }, textureManager->getFont("roboto"), "-");
+    /// this will NOT be placed in the network view it will be independent
+    Button addLayerButton(225, 110, 50, 50, Color(128, 128, 128), Color(160, 160, 160), [this]() { this->addLayer(); }, textureManager->getFont("roboto"), "+");
+    Button removeLayerButton(225 + 75, 110, 50, 50, Color(128, 128, 128), Color(160, 160, 160), [this]() { this->removeLayer(); }, textureManager->getFont("roboto"), "-");
+
+	this->layersText.setCharacterSize(24);
+	this->layersText.setFont(textureManager->getFont("roboto"));
+	this->layersText.setFillColor(Color::White);
+	this->layersText.setString("Add or Remove\nHidden Layers");
+	this->layersText.setPosition(10, 100);
+
 	this->addOrRemoveLayer = make_pair(addLayerButton, removeLayerButton);
 }
 
@@ -115,36 +128,6 @@ void NetworkVisualizer<T>::draw(sf::RenderWindow& window, GameState gameState, b
 		maxWeight = std::max(maxWeight, *std::max_element(this->network.GetLayer(i).GetWeights().begin(), this->network.GetLayer(i).GetWeights().end()));
 	}   
 
-	
-
-
-	if (gameState == GameState::InputingData) {
-        for (int i = 0; i < this->layers.size(); i++) {
-
-            if (i == this->layers.size() - 1 && !dataSetEmpty) {
-                this->addOrRemoveNeuron[i].first.setVisible(false);
-                this->addOrRemoveNeuron[i].second.setVisible(false);
-            }
-            else {
-                this->addOrRemoveNeuron[i].first.draw(window);
-                this->addOrRemoveNeuron[i].second.draw(window);
-            }
-           
-        }
-
-        this->addOrRemoveLayer.first.draw(window);
-        this->addOrRemoveLayer.second.draw(window);
-	}
-    else {
-		this->addOrRemoveLayer.first.setVisible(false);
-		this->addOrRemoveLayer.second.setVisible(false);
-		for (int i = 0; i < this->layers.size(); i++) {
-            
-			this->addOrRemoveNeuron[i].first.setVisible(false);
-			this->addOrRemoveNeuron[i].second.setVisible(false);
-		}
-
-    }
 
     for (int i = 0; i < this->layers.size(); i++) {
         this->layers[i].drawConnections(window, minWeight, maxWeight);
@@ -159,6 +142,42 @@ void NetworkVisualizer<T>::draw(sf::RenderWindow& window, GameState gameState, b
 
     for (int i = 0; i < this->inputNeurons.size(); i++) {
         this->inputNeurons[i].draw(window, minActivation, maxActivation);
+    }
+
+    if (gameState == GameState::InputingData) {
+        for (int i = 0; i < this->layers.size(); i++) {
+
+            if (i == this->layers.size() - 1 && !dataSetEmpty) {
+                this->addOrRemoveNeuron[i].first.setVisible(false);
+                this->addOrRemoveNeuron[i].second.setVisible(false);
+            }
+            else {
+                this->addOrRemoveNeuron[i].first.draw(window);
+                this->addOrRemoveNeuron[i].second.draw(window);
+            }
+
+        }
+
+        /// show on the default view
+        View view = window.getView();
+        window.setView(window.getDefaultView());
+
+        this->addOrRemoveLayer.first.draw(window);
+        this->addOrRemoveLayer.second.draw(window);
+
+
+        window.draw(this->layersText);
+        window.setView(view);
+    }
+    else {
+        this->addOrRemoveLayer.first.setVisible(false);
+        this->addOrRemoveLayer.second.setVisible(false);
+        for (int i = 0; i < this->layers.size(); i++) {
+
+            this->addOrRemoveNeuron[i].first.setVisible(false);
+            this->addOrRemoveNeuron[i].second.setVisible(false);
+        }
+
     }
 
 }
@@ -313,7 +332,9 @@ void NetworkVisualizer<T>::checkEvents(sf::RenderWindow& window, sf::Event event
     sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
     sf::Vector2f worldPos = window.mapPixelToCoords(pixelPos, view);
 
-
+	sf::Event defaultEvent = event;
+	defaultEvent.mouseButton.x = pixelPos.x;
+	defaultEvent.mouseButton.y = pixelPos.y;
 
     sf::Event worldEvent = event;
     worldEvent.mouseButton.x = worldPos.x;
@@ -326,8 +347,8 @@ void NetworkVisualizer<T>::checkEvents(sf::RenderWindow& window, sf::Event event
 			}
         }
         if (this->addOrRemoveLayer.first.getVisible()) {
-            this->addOrRemoveLayer.first.checkEvents(window, worldEvent);
-            this->addOrRemoveLayer.second.checkEvents(window, worldEvent); // Update the second button's event as well
+            this->addOrRemoveLayer.first.checkEvents(window, defaultEvent);
+            this->addOrRemoveLayer.second.checkEvents(window, defaultEvent); // Update the second button's event as well
         }
 
    

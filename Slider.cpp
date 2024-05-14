@@ -7,7 +7,7 @@
 
 void Slider::initializeVariables(float x, float y, float width, float height, double& value, std::string name) {
     this->value = value;
-    this->textureManager = TextureManager::getInstance();
+    /// this->textureManager = TextureManager::getInstance();
     this->name = name;
 
     track.setPosition(x, y);
@@ -18,17 +18,20 @@ void Slider::initializeVariables(float x, float y, float width, float height, do
     sf::Color gray(128, 128, 128);
     handle.setFillColor(gray);
     // Calculate the center of the track and adjust for the size of the handle
-    float handleX = x + (width - handle.getSize().x) / 2;
+    float handleX = x;
     float handleY = y + (height - handle.getSize().y) / 2;
     handle.setPosition(handleX, handleY);
 
-    this->font = textureManager->getFont("roboto");
+	this->font = TextureManager::getInstance()->getFont("roboto");
     text.setFont(font);
     text.setCharacterSize(24); // in pixels
     text.setFillColor(sf::Color::White);
     text.setPosition(x, y - text.getCharacterSize() - 10);
+    std::stringstream ss;
+    ss << std::fixed << std::setprecision(2) << value;
+    text.setString(name + ":" + ss.str());
 
-    isDragging = false;
+    this->isDragging = false;
 }
 
 Slider::Slider(float x, float y, float width, float height, double& value, std::string name) : value(value) {
@@ -58,7 +61,7 @@ void Slider::handleEvent(const sf::Event& event) {
             newX = std::min(newX, track.getPosition().x + track.getSize().x - handle.getSize().x);
             handle.setPosition(newX, handle.getPosition().y);
 
-            value = ((newX - track.getPosition().x) / (track.getSize().x - handle.getSize().x)) * 6 - 3;
+            value = ((newX - track.getPosition().x) / (track.getSize().x - handle.getSize().x)) * 6;
             std::stringstream ss;
             ss << std::fixed << std::setprecision(2) << value;
             text.setString(name + ":" + ss.str());
@@ -71,7 +74,7 @@ void Slider::setText(std::string str) {
 }
 
 void Slider::draw(sf::RenderWindow& window) {
+    window.draw(text);
     window.draw(track);
     window.draw(handle);
-    window.draw(text);
 }

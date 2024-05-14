@@ -13,7 +13,6 @@ private:
     std::string name;
     double& value; // reference to a float
     bool isDragging;
-	TextureManager* textureManager;
 
 public:
 

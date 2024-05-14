@@ -16,7 +16,6 @@ MainLoop* MainLoop::getInstance() {
 void MainLoop::initializeClassDropdown() {
     this->classDropdown.addOption(new ColorButton(0, 0, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color::Blue, [this]() { this->dataColor = Color(0, 0, 255); }, this->textureManager->getFont("roboto"), ""));
     this->classDropdown.addOption(new ColorButton(0, 0, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color::Red, [this]() { this->dataColor = Color(255, 0, 0); }, this->textureManager->getFont("roboto"), ""));
-    
 }
 
 
@@ -70,10 +69,10 @@ classDropdown(10, 800, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color(2
     this->highlightMode = false;
 
     /// buttons and sliders
-	this->resetInputsButton = Button(10, 900, 150, 50, Color(50, 50, 50), Color(105, 105, 105), [this]() { this->resetInputs(); }, TextureManager::getInstance()->getFont("roboto"), "Reset Inputs");
-    this->resetTrainingButton = Button(200, 900, 180, 50, Color(50, 50, 50), Color(105, 105, 105), [this]() { this->resetTraining(); }, TextureManager::getInstance()->getFont("roboto"), "Reset Training");
-    this->toggleHighlightMode = Button(420, 900, 200, 50, Color(50, 50, 50), Color(105, 105, 105), [this]() { this->toggleHighlight(); }, TextureManager::getInstance()->getFont("roboto"), "Toggle Highlight");
-    this->nextPointButton = Button(100 + this->networkVisualizer.getTotalWidth() + 50,  400 , 25, 150, Color(50, 50, 50), Color(105, 105, 105), [this]() {
+	this->resetInputsButton = Button(10, 900, 150, 50, Color(128, 128, 128), Color(160, 160, 160), [this]() { this->resetInputs(); }, TextureManager::getInstance()->getFont("roboto"), "Reset Inputs");
+    this->resetTrainingButton = Button(200, 900, 180, 50, Color(128, 128, 128), Color(160, 160, 160), [this]() { this->resetTraining(); }, TextureManager::getInstance()->getFont("roboto"), "Reset Training");
+    this->toggleHighlightMode = Button(420, 900, 200, 50, Color(128, 128, 128), Color(160, 160, 160), [this]() { this->toggleHighlight(); }, TextureManager::getInstance()->getFont("roboto"), "Toggle Highlight");
+    this->nextPointButton = Button(100 + this->networkVisualizer.getTotalWidth() + 50,  400 , 25, 150, Color(128, 128, 128), Color(160, 160, 160), [this]() {
         /// sets current data point to the next one in the set if possible
         try {
             if (this->dataPoints.empty()) 
@@ -93,7 +92,7 @@ classDropdown(10, 800, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color(2
         }
     }, this->textureManager->getFont("roboto"), ">");
 
-    this->previousPointButton = Button(100, 400, 25, 150, Color(50, 50, 50), Color(105, 105, 105), [this]() {
+    this->previousPointButton = Button(100, 400, 25, 150, Color(128, 128, 128), Color(160, 160, 160), [this]() {
         /// sets current data point to the previous one in the set if possible
         try {
             if (this->dataPoints.empty())
@@ -484,7 +483,8 @@ void MainLoop::run()
         /// other inputs
         this->zoomHandler();
 
-        this->window.clear();
+        this->window.clear(Color(14, 26, 37));
+
         this->drawRightHalfScreen();
         this->window.setView(this->plotView); /// for the plot view
 
