@@ -46,6 +46,21 @@ vector<double> NeuralNetwork::CalculateOutputs(const vector<double>& inputs) { /
 	return outputs;
 }
 
+vector<double> NeuralNetwork::CalculateNeuronOutputs(const vector<double>& inputs, int specificLayer, int activeNeuron) {
+	vector<double> outputs = inputs;
+	for (int i = 0; i < this->layers.size(); i++) {
+		outputs = this->layers[i].CalculateOutputs(outputs);
+		if (i == specificLayer) {
+			for (int j = 0; j < outputs.size(); j++) {
+				if (j != activeNeuron) {
+					outputs[j] = 0;
+				}
+			}
+		}
+	}
+	return outputs;
+}
+
 int NeuralNetwork::Classify(const vector<double>& inputs) { /// classify the inputs from 1 
 	vector<double> outputs = CalculateOutputs(inputs); /// calculate the outputs of the neural network
 
@@ -175,3 +190,12 @@ const Layer& NeuralNetwork::GetLayer(int index) const { return this->layers[inde
 const vector<Layer>& NeuralNetwork::GetLayers() const { return this->layers; }
 
 int NeuralNetwork::GetNumberLayers() const { return this->layers.size(); }
+
+int NeuralNetwork::GetLayerIndex(const Layer& layer) const {
+	for (int i = 0; i < this->layers.size(); i++) {
+		if (&this->layers[i] == &layer) {
+			return i;
+		}
+	}
+	return -1;
+}

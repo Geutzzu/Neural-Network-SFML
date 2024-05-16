@@ -1,31 +1,42 @@
 #pragma once
 
 #include "Layer.h"
+#include "NeuronPlot.h"
+#include "NeuralNetwork.h"
 
 template <typename T>
 class LayerVisualizer {
 private:
     const Layer& layer;
+	NeuralNetwork& network; /// we need this for the plot neuron - we must have access to this and we must pass it as a parameter so we can calculate outputs for each neuron
     std::vector<T> neurons; // can switch between different types of neurons (Neuron, VisualNeuron, etc.)
     sf::Vector2f position;
 
 public:
-    LayerVisualizer(const Layer& layer, sf::Vector2f position);
+	LayerVisualizer() = delete; /// we don't want to have a default constructor due to the references
+	LayerVisualizer(const Layer& layer, sf::Vector2f position, NeuralNetwork& network); /// we initialize the layer and the position
 
-    void drawNeurons(sf::RenderWindow& window);
-    void drawConnections(sf::RenderWindow& window, double minWeight, double maxWeight);
+	void drawNeurons(sf::RenderWindow& window, const vector<Color>& classColors); /// we draw the neurons
+	void drawConnections(sf::RenderWindow& window, double minWeight, double maxWeight); /// we draw the connections
 };
 
 template <typename T>
-LayerVisualizer<T>::LayerVisualizer(const Layer& layer, sf::Vector2f position) : layer(layer), position(position) {
+LayerVisualizer<T>::LayerVisualizer(const Layer& layer, sf::Vector2f position, NeuralNetwork& network) : layer(layer), position(position), network(network) {
     for (int i = 0; i < this->layer.GetNumberOutputs(); i++) {
         T neuron(position + sf::Vector2f(0, i * 100), this->layer.GetLayerData().GetActivation(i));
         neurons.push_back(neuron);
     }
 }
 
+
+// in the LayerVisualizer.cpp file
+template <>
+LayerVisualizer<NeuronPlot>::LayerVisualizer(const Layer& layer, sf::Vector2f position, NeuralNetwork& network);
+
+
+
 template <typename T>
-void LayerVisualizer<T>::drawNeurons(sf::RenderWindow& window) {
+void LayerVisualizer<T>::drawNeurons(sf::RenderWindow& window, const vector<Color>& classColors) {
 
     /// this->drawConnections(window); - > we need to draw the connections first
 
@@ -39,6 +50,10 @@ void LayerVisualizer<T>::drawNeurons(sf::RenderWindow& window) {
         this->neurons[i].draw(window, minActivation, maxActivation);
     }
 }
+
+template <>
+void LayerVisualizer<NeuronPlot>::drawNeurons(sf::RenderWindow& window, const vector<Color>& classColors);
+
 
 template <typename T>
 void LayerVisualizer<T>::drawConnections(sf::RenderWindow& window, double minWeight, double maxWeight) {

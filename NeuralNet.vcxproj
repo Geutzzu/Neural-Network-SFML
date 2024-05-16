@@ -143,6 +143,7 @@
     <ClCompile Include="Layer.cpp" />
     <ClCompile Include="LayerVisualizer.cpp" />
     <ClCompile Include="Neuron.cpp" />
+    <ClCompile Include="NeuronPlot.cpp" />
     <ClCompile Include="Slider.cpp" />
     <ClCompile Include="TextureManager.cpp" />
     <ClCompile Include="ThreadPool.cpp" />
@@ -164,6 +165,7 @@
     <ClInclude Include="NetworkData.h" />
     <ClInclude Include="NetworkVisualizer.h" />
     <ClInclude Include="NeuralNetwork.h" />
+    <ClInclude Include="NeuronPlot.h" />
     <ClInclude Include="Slider.h" />
     <ClInclude Include="StandardizationCalculator.h" />
     <ClInclude Include="TextureManager.h" />

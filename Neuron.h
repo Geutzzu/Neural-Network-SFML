@@ -14,7 +14,7 @@ private:
 	Vector2f position;
 public:
 
-	Neuron() = default;
+	Neuron() = delete;
 	Neuron(Vector2f, const double& value);
 	Neuron(const Neuron& neuron);
 	Neuron& operator=(Neuron& neuron);

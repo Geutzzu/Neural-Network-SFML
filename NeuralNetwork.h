@@ -39,6 +39,8 @@ public:
 
 	vector<double> CalculateOutputs(const vector<double>& inputs);
 
+	vector<double> CalculateNeuronOutputs(const vector<double>& inputs, int specificLayer, int activeNeuron); /// for neuron plots
+
 	int Classify(const vector<double>& inputs);
 
 	double CostFunction(const DataPoint& dataPoint); /// calculate the cost of the data point
@@ -73,4 +75,7 @@ public:
 	const vector<Layer>& GetLayers() const;
 
 	int GetNumberLayers() const;
+
+	int GetLayerIndex(const Layer& layer) const;
+
 };

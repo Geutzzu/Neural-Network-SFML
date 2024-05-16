@@ -10,6 +10,7 @@
 #include <map>
 #include "Graph.h"
 #include "StandardizationCalculator.h"
+#include "NeuronPlot.h"
 
 class MainLoop {
 private:

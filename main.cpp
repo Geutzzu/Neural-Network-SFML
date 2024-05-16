@@ -35,6 +35,8 @@
 #include "ColorButton.h"
 #include "Dropdown.h"
 #include "Graph.h"
+#include "StandardizationCalculator.h"
+#include "NeuronPlot.h"
 
 
 

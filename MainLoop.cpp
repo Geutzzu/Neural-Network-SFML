@@ -19,7 +19,8 @@ void MainLoop::initializeClassDropdown() {
 }
 
 
-MainLoop::MainLoop() : window(sf::VideoMode(1920, 1080), "Neural Network"), network({ 2, 5, 2 }), networkVisualizer(network, sf::Vector2f(450, 200)), textureManager(TextureManager::getInstance()), gameState(GameState::InputingData), learningRateSlider(720, 40, 200, 20, learningRate, "Learning Rate"),
+
+MainLoop::MainLoop() : window(sf::VideoMode(1920, 1080), "Neural Network"), network({ 2, 5, 2 }), networkVisualizer(network, sf::Vector2f(450, 200), this->classColors), textureManager(TextureManager::getInstance()), gameState(GameState::InputingData), learningRateSlider(720, 40, 200, 20, learningRate, "Learning Rate"),
 classDropdown(10, 800, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color(25, 25, 25), {} , TextureManager::getInstance()->getFont("roboto"), ""), costGraph(200, 25, 200, 50) { 
 	this->window.setFramerateLimit(500);
 	this->circles = map<DataPoint, sf::CircleShape>();
@@ -68,6 +69,7 @@ classDropdown(10, 800, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color(2
 
     this->highlightMode = false;
 
+
     /// buttons and sliders
 	this->resetInputsButton = Button(10, 900, 150, 50, Color(128, 128, 128), Color(160, 160, 160), [this]() { this->resetInputs(); }, TextureManager::getInstance()->getFont("roboto"), "Reset Inputs");
     this->resetTrainingButton = Button(200, 900, 180, 50, Color(128, 128, 128), Color(160, 160, 160), [this]() { this->resetTraining(); }, TextureManager::getInstance()->getFont("roboto"), "Reset Training");
@@ -113,6 +115,7 @@ classDropdown(10, 800, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color(2
 	
 
 }
+
 
 
 void MainLoop::updateHighlight() {
@@ -192,6 +195,8 @@ const double& MainLoop::getCostPercentage() {
 		return 0;
 }
 
+
+
 void MainLoop::visualizePlot()
 {
     int width = this->window.getSize().x / (2 * pixelSize);
@@ -208,7 +213,7 @@ void MainLoop::visualizePlot()
 
             // Set all outputs to 0, except the maximum one
             for (int i = 0; i < outputs.size(); i++) {
-                outputs[i] = (i == maxIndex) ? 1 : 0;
+                outputs[i] = (i == maxIndex);
             }
 
             // Get the color for this pixel

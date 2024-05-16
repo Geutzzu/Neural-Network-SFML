@@ -5,6 +5,7 @@
 #include "LayerVisualizer.h"
 #include "Button.h"
 #include "TextureManager.h"
+#include "NeuronPlot.h"
 
 enum class GameState {
     InputingData,
@@ -16,17 +17,18 @@ template <typename T>
 class NetworkVisualizer {
 private:
     NeuralNetwork& network;
-    std::vector<LayerVisualizer<T>> layers;
+    std::vector<LayerVisualizer<NeuronPlot>> layers; /// !
     std::vector<pair<Button, Button> > addOrRemoveNeuron;
 	std::pair<Button, Button> addOrRemoveLayer;
     sf::Text layersText;
     std::vector<T> inputNeurons;
     sf::Vector2f position;
 	TextureManager* textureManager;
+	std::vector<sf::Color>& classColors;
     
 
 public:
-	NetworkVisualizer(NeuralNetwork& network, sf::Vector2f position); /// constructor
+	NetworkVisualizer(NeuralNetwork& network, sf::Vector2f position, std::vector<sf::Color>& classColors); /// constructor
 	NetworkVisualizer(const NetworkVisualizer& networkVisualizer); /// copy constructor
 	NetworkVisualizer& operator=(NetworkVisualizer& networkVisualizer); /// assignment operator
 
@@ -63,7 +65,7 @@ void NetworkVisualizer<T>::initializeValues(sf::Vector2f position) {
     }
     /// Button::Button(float x, float y, float width, float height, Color color, Color hoverColor, function<void()> onClickFunction, const Font& font, const string& text)
     for (int i = 0; i < this->network.GetNumberLayers(); i++) {
-        LayerVisualizer<T> layerVisualizer(this->network.GetLayer(i), position + sf::Vector2f(i * 340, 0));
+        LayerVisualizer<NeuronPlot> layerVisualizer(this->network.GetLayer(i), position + sf::Vector2f(i * 340, 0), this->network);
         layers.push_back(layerVisualizer);
         Button addNeuronButton(position.x + i * 340 - 23, position.y - 75, 50, 50, Color(128, 128, 128), Color(160, 160, 160), [i, this]() {
                 this->addNeuron(i);
@@ -93,12 +95,12 @@ void NetworkVisualizer<T>::initializeValues(sf::Vector2f position) {
 }
 
 template <typename T>
-NetworkVisualizer<T>::NetworkVisualizer(NeuralNetwork& network, sf::Vector2f position) : network(network) {
+NetworkVisualizer<T>::NetworkVisualizer(NeuralNetwork& network, sf::Vector2f position, std::vector<sf::Color>& classColors) : network(network), classColors(classColors) {
     this->initializeValues(position);
 }
 
 template <typename T>
-NetworkVisualizer<T>::NetworkVisualizer(const NetworkVisualizer& networkVisualizer) : network(networkVisualizer.network) {
+NetworkVisualizer<T>::NetworkVisualizer(const NetworkVisualizer& networkVisualizer) : network(networkVisualizer.network), classColors(classColors) {
     this->initializeValues(networkVisualizer.position);
 }
 
@@ -106,6 +108,7 @@ template <typename T>
 NetworkVisualizer<T>& NetworkVisualizer<T>::operator=(NetworkVisualizer& networkVisualizer) {
     if (this != &networkVisualizer) {
         this->initializeValues(networkVisualizer.position);
+		this->classColors = networkVisualizer.classColors;
     }
     return *this;
 }
@@ -135,7 +138,7 @@ void NetworkVisualizer<T>::draw(sf::RenderWindow& window, GameState gameState, b
 
 
     for (int i = 0; i < this->layers.size(); i++) {
-        this->layers[i].drawNeurons(window);
+        this->layers[i].drawNeurons(window, this->classColors);
     }
 
 	
