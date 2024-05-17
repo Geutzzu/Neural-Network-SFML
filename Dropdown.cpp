@@ -5,19 +5,41 @@ Dropdown::Dropdown() : ColorButton() {
 	this->isOpen = false;
 	this->selectedButton = nullptr;
 	this->selectedIndex = -1;
+	this->reverse = false;
 }
 
+
+Dropdown::Dropdown(float x, float y, float width, float height, sf::Color color, sf::Color hoverColor, sf::Color displayColor, const vector<Button*>& buttons, const sf::Font& font, const string& text, bool reverse)
+    : ColorButton(x, y, width, height, color, hoverColor, displayColor, [this, buttons]() {
+    this->isOpen = !this->isOpen;
+        }, font, text), reverse(reverse) {
+    initializeVariables(x, y, width, height, color, hoverColor, displayColor, buttons);
+    this->selectedButton = nullptr;
+    this->selectedIndex = -1;
+}
 
 void Dropdown::initializeVariables(float x, float y, float width, float height, sf::Color color, sf::Color hoverColor, sf::Color displayColor, const vector<Button*>& buttons) {
     this->buttons = buttons;
     this->isOpen = false;
 
-    float buttonY = y - height;
+    float buttonY;
+    if (reverse) {
+        buttonY = y + height;
+    } else {
+        buttonY = y - height;
+    }
+
     for (Button* button : buttons) {
         button->setPosition(x, buttonY);
-        buttonY -= button->getSize().y;
+        if (reverse) {
+            buttonY = buttonY + button->getSize().y;
+        } else {
+            buttonY = buttonY - button->getSize().y;
+        }
     }
 }
+
+
 
 Dropdown::Dropdown(float x, float y, float width, float height, sf::Color color, sf::Color hoverColor, sf::Color displayColor, const vector<Button*>& buttons, const sf::Font& font, const string& text)
     : ColorButton(x, y, width, height, color, hoverColor, displayColor, [this, buttons]() { 
@@ -30,7 +52,7 @@ Dropdown::Dropdown(float x, float y, float width, float height, sf::Color color,
 
 }
 
-Dropdown::Dropdown(const Dropdown& dropdown)
+Dropdown::Dropdown(const Dropdown& dropdown) /// se poate ca nici asta
     : ColorButton(dropdown) {
     initializeVariables(dropdown.getPosition().x, dropdown.getPosition().y, dropdown.getSize().x, dropdown.getSize().y, dropdown.normalColor, dropdown.hoverColor, dropdown.displayColor, dropdown.buttons);
 	if (dropdown.selectedButton != nullptr) {
@@ -41,9 +63,10 @@ Dropdown::Dropdown(const Dropdown& dropdown)
 		this->selectedButton = nullptr;
 		this->selectedIndex = -1;
 	}
+	this->reverse = dropdown.reverse;
 }
 
-Dropdown& Dropdown::operator=(const Dropdown& dropdown) {
+Dropdown& Dropdown::operator=(const Dropdown& dropdown) { /// nu merge bine si nu stiu sigur de ce
     if (this != &dropdown) {
         ColorButton::operator=(dropdown);
         initializeVariables(dropdown.getPosition().x, dropdown.getPosition().y, dropdown.getSize().x, dropdown.getSize().y, dropdown.normalColor, dropdown.hoverColor, dropdown.displayColor, dropdown.buttons);
@@ -55,6 +78,7 @@ Dropdown& Dropdown::operator=(const Dropdown& dropdown) {
 			this->selectedButton = nullptr;
 			this->selectedIndex = -1;
 		}
+		this->reverse = dropdown.reverse;
     }
     return *this;
 }

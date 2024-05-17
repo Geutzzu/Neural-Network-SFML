@@ -11,20 +11,23 @@
 #include "Graph.h"
 #include "StandardizationCalculator.h"
 #include "NeuronPlot.h"
+#include <variant>
+#include <any>
+
 
 class MainLoop {
 private:
 
 	RenderWindow window;
 	NeuralNetwork network;
-	NetworkVisualizer<Neuron> networkVisualizer;
+	variant<NetworkVisualizer<Neuron>, NetworkVisualizer<NeuronPlot>> networkVisualizer;
 	TextureManager* textureManager;
 	GameState gameState;
 	set<DataPoint> dataPoints;
 	map<DataPoint, CircleShape> circles;
 	Graph costGraph;
-	StandardizationCalculator statsX;
-	StandardizationCalculator statsY;
+	StandardizationCalculator statsX; /// not used now - no need for standardization
+	StandardizationCalculator statsY; /// not used now
 
 	/// buttons and sliders
 	Button resetInputsButton;
@@ -34,10 +37,15 @@ private:
 	Button previousPointButton;
 	Button nextPointButton;
 	Button toggleHighlightMode;
+	Button toggleVisualizeMode;
 
-	/// parameters
+	/// hyperparameters
 	int epoch;
 	double learningRate;
+	// double momentum;
+	ActivationType activationType;
+	CostType costType;
+
 
 	/// misc
 	bool dataSetEmpty;
@@ -49,7 +57,9 @@ private:
 	set<DataPoint>::iterator currentDataPoint;
 	double maxCost;
 
+
 	/// plot visualization
+	bool visualizeMode;
 	VertexArray pixels;
 	int pixelSize;
 
@@ -74,6 +84,8 @@ public:
 
 	/// initializing functions
 	void initializeClassDropdown();
+	void initializeCostDropdown();
+	void initializeActivationDropdown();
 
 	/// functions for functionality
 	void updateHighlight();
@@ -86,6 +98,7 @@ public:
 	void resetInputs();
 	void resetTraining();
 	void toggleHighlight();
+	void toggleVisualize();
 	const double& getCostPercentage();
 
 	/// standardization

@@ -16,8 +16,8 @@ enum class GameState {
 template <typename T>
 class NetworkVisualizer {
 private:
-    NeuralNetwork& network;
-    std::vector<LayerVisualizer<NeuronPlot>> layers; /// !
+    NeuralNetwork& network; /// this should have been const but I did not want to change some method to const becouse it would require a few changes (forgot what method)
+    std::vector<LayerVisualizer<T>> layers; /// !
     std::vector<pair<Button, Button> > addOrRemoveNeuron;
 	std::pair<Button, Button> addOrRemoveLayer;
     sf::Text layersText;
@@ -30,7 +30,7 @@ private:
 public:
 	NetworkVisualizer(NeuralNetwork& network, sf::Vector2f position, std::vector<sf::Color>& classColors); /// constructor
 	NetworkVisualizer(const NetworkVisualizer& networkVisualizer); /// copy constructor
-	NetworkVisualizer& operator=(NetworkVisualizer& networkVisualizer); /// assignment operator
+	NetworkVisualizer& operator=(const NetworkVisualizer& networkVisualizer); /// assignment operator
 
 	/// add or remove neuron
     void addNeuron(int layerIndex);
@@ -39,10 +39,12 @@ public:
     void removeLayer();
 
     /// add or remove layer
-
+    void initializeInputNeurons();
+	void drawInputNeurons(sf::RenderWindow& window, double minActivation, double maxActivation);
     void initializeValues(sf::Vector2f position);
     void draw(sf::RenderWindow& window, GameState gameState, bool dataSetEmpty);
 	void checkEvents(sf::RenderWindow& window, sf::Event event, sf::View& view);
+	
 
 	void setPosition(sf::Vector2f position) { this->position = position; }
 
@@ -52,20 +54,31 @@ public:
 
 };
 
+
+/// specialization for initializeValues for NeuronPlot
+template<typename T>
+void NetworkVisualizer<T>::initializeInputNeurons() {
+    for (int i = 0; i < this->network.GetLayer(0).GetNumberInputs(); i++) {
+        T neuron(this->position + sf::Vector2f(-320, i * 100), this->network.GetLayer(0).GetLayerData().GetInput(i)); /// !
+        inputNeurons.push_back(neuron);
+    }
+}
+
+template<>
+void NetworkVisualizer<NeuronPlot>::initializeInputNeurons();
+
 template <typename T>
 void NetworkVisualizer<T>::initializeValues(sf::Vector2f position) {
 
-	this->network.InitializeWeightsAndBiases();
+	/// this->network.InitializeWeightsAndBiases(); - it worked fine until I added toggle between views
     this->position = position;
 	this->textureManager = TextureManager::getInstance();
 
-    for (int i = 0; i < this->network.GetLayer(0).GetNumberInputs(); i++) {
-        T neuron(this->position + sf::Vector2f(-320, i * 100), this->network.GetLayer(0).GetLayerData().GetInput(i));
-        inputNeurons.push_back(neuron);
-    }
+	this->initializeInputNeurons();
+
     /// Button::Button(float x, float y, float width, float height, Color color, Color hoverColor, function<void()> onClickFunction, const Font& font, const string& text)
     for (int i = 0; i < this->network.GetNumberLayers(); i++) {
-        LayerVisualizer<NeuronPlot> layerVisualizer(this->network.GetLayer(i), position + sf::Vector2f(i * 340, 0), this->network);
+        LayerVisualizer<T> layerVisualizer(this->network.GetLayer(i), position + sf::Vector2f(i * 340, 0), this->network);
         layers.push_back(layerVisualizer);
         Button addNeuronButton(position.x + i * 340 - 23, position.y - 75, 50, 50, Color(128, 128, 128), Color(160, 160, 160), [i, this]() {
                 this->addNeuron(i);
@@ -78,7 +91,6 @@ void NetworkVisualizer<T>::initializeValues(sf::Vector2f position) {
 		this->addOrRemoveNeuron.push_back(make_pair(addNeuronButton, removeNeuronButton));
     }
 
-	
 	///Button addLayerButton(position.x + (this->network.GetNumberLayers() - 1) * 340 - 23, position.y + 500, 50, 50, Color(128, 128, 128), Color(160, 160, 160), [this]() { this->addLayer(); }, textureManager->getFont("roboto"), "+");
 	///Button removeLayerButton(position.x + (this->network.GetNumberLayers() - 1) * 340 + 75 - 23, position.y + 500, 50, 50, Color(128, 128, 128), Color(160, 160, 160), [this]() { this->removeLayer(); }, textureManager->getFont("roboto"), "-");
     /// this will NOT be placed in the network view it will be independent
@@ -94,25 +106,36 @@ void NetworkVisualizer<T>::initializeValues(sf::Vector2f position) {
 	this->addOrRemoveLayer = make_pair(addLayerButton, removeLayerButton);
 }
 
+
 template <typename T>
 NetworkVisualizer<T>::NetworkVisualizer(NeuralNetwork& network, sf::Vector2f position, std::vector<sf::Color>& classColors) : network(network), classColors(classColors) {
     this->initializeValues(position);
 }
 
 template <typename T>
-NetworkVisualizer<T>::NetworkVisualizer(const NetworkVisualizer& networkVisualizer) : network(networkVisualizer.network), classColors(classColors) {
+NetworkVisualizer<T>::NetworkVisualizer(const NetworkVisualizer& networkVisualizer) : network(networkVisualizer.network), classColors(networkVisualizer.classColors) {
     this->initializeValues(networkVisualizer.position);
 }
 
 template <typename T>
-NetworkVisualizer<T>& NetworkVisualizer<T>::operator=(NetworkVisualizer& networkVisualizer) {
+NetworkVisualizer<T>& NetworkVisualizer<T>::operator=(const NetworkVisualizer& networkVisualizer) {
     if (this != &networkVisualizer) {
         this->initializeValues(networkVisualizer.position);
 		this->classColors = networkVisualizer.classColors;
+		this->network = networkVisualizer.network;
     }
     return *this;
 }
 
+template <typename T>
+void NetworkVisualizer<T>::drawInputNeurons(sf::RenderWindow& window, double minActivation, double maxActivation) {
+    for (int i = 0; i < this->inputNeurons.size(); i++) {
+        this->inputNeurons[i].draw(window, minActivation, maxActivation);
+    }
+}
+
+template <>
+void NetworkVisualizer<NeuronPlot>::drawInputNeurons(sf::RenderWindow& window, double minActivation, double maxActivation);
 
 
 template <typename T>
@@ -140,13 +163,9 @@ void NetworkVisualizer<T>::draw(sf::RenderWindow& window, GameState gameState, b
     for (int i = 0; i < this->layers.size(); i++) {
         this->layers[i].drawNeurons(window, this->classColors);
     }
-
 	
-
-    for (int i = 0; i < this->inputNeurons.size(); i++) {
-        this->inputNeurons[i].draw(window, minActivation, maxActivation);
-    }
-
+    this->drawInputNeurons(window, minActivation, maxActivation);
+    
     if (gameState == GameState::InputingData) {
         for (int i = 0; i < this->layers.size(); i++) {
 
@@ -185,9 +204,11 @@ void NetworkVisualizer<T>::draw(sf::RenderWindow& window, GameState gameState, b
 
 }
 
+
 template <typename T>
 void NetworkVisualizer<T>::addNeuron(int layerIndex) {
     try {
+
         // Create a list of layer sizes for the new NeuralNetwork
         std::vector<int> layerSizes;
 
@@ -218,6 +239,8 @@ void NetworkVisualizer<T>::addNeuron(int layerIndex) {
         this->addOrRemoveNeuron.clear();
         this->inputNeurons.clear();
         this->initializeValues(this->position);
+        this->network.InitializeWeightsAndBiases();
+
     }
     catch (const std::runtime_error& e) {
         std::cout << e.what() << std::endl;
@@ -227,6 +250,9 @@ void NetworkVisualizer<T>::addNeuron(int layerIndex) {
 template <typename T>
 void NetworkVisualizer<T>::removeNeuron(int layerIndex) {
     try {
+
+        
+
         // Create a list of layer sizes for the new NeuralNetwork
         std::vector<int> layerSizes;
 
@@ -257,6 +283,7 @@ void NetworkVisualizer<T>::removeNeuron(int layerIndex) {
         this->addOrRemoveNeuron.clear();
         this->inputNeurons.clear();
         this->initializeValues(this->position);
+        this->network.InitializeWeightsAndBiases();
     }
     catch (const std::runtime_error& e) {
         std::cout << e.what() << std::endl;
@@ -267,6 +294,8 @@ void NetworkVisualizer<T>::removeNeuron(int layerIndex) {
 
 template<typename T>
 void NetworkVisualizer<T>::addLayer() {
+
+
 	// Create a list of layer sizes for the new NeuralNetwork
 	std::vector<int> layerSizes;
 
@@ -291,6 +320,7 @@ void NetworkVisualizer<T>::addLayer() {
 	this->addOrRemoveNeuron.clear();
 	this->inputNeurons.clear();
 	this->initializeValues(this->position);
+    this->network.InitializeWeightsAndBiases();
 }
 
 template<typename T>
@@ -321,6 +351,7 @@ void NetworkVisualizer<T>::removeLayer() {
         this->addOrRemoveNeuron.clear();
         this->inputNeurons.clear();
         this->initializeValues(this->position);
+        this->network.InitializeWeightsAndBiases();
     }
     catch (const std::runtime_error& e) {
         cout << e.what() << std::endl;

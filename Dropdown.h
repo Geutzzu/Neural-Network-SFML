@@ -16,12 +16,14 @@ class Dropdown : public ColorButton {
 private:
     Button* selectedButton;
 	int selectedIndex;
-    std::vector<Button*> buttons;
+    vector<Button*> buttons;
+    bool reverse;
     bool isOpen;
 
 public:
 
 	Dropdown();
+    Dropdown(float x, float y, float width, float height, sf::Color color, sf::Color hoverColor, sf::Color displayColor, const vector<Button*>& buttons, const sf::Font& font, const string& text, bool reverse);
     Dropdown(float x, float y, float width, float height, sf::Color color, sf::Color hoverColor, sf::Color displayColor, const vector<Button*>& buttons, const sf::Font& font, const string& text);
     Dropdown(const Dropdown& dropdown);
     Dropdown& operator=(const Dropdown& dropdown);

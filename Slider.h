@@ -11,7 +11,7 @@ private:
     sf::Font font;
     sf::Text text;
     std::string name;
-    double& value; // reference to a float
+    double& value; // reference to the value of the slider
     bool isDragging;
 
 public:

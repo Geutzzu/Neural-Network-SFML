@@ -47,7 +47,20 @@ vector<double> NeuralNetwork::CalculateOutputs(const vector<double>& inputs) { /
 }
 
 vector<double> NeuralNetwork::CalculateNeuronOutputs(const vector<double>& inputs, int specificLayer, int activeNeuron) {
+
 	vector<double> outputs = inputs;
+
+	if (specificLayer == -1) {
+		if (activeNeuron == 0) {
+			outputs[0] = 0;
+		}
+		else {
+			outputs[1] = 0;
+		}
+		outputs = this->CalculateOutputs(outputs);
+		return outputs;
+	}
+
 	for (int i = 0; i < this->layers.size(); i++) {
 		outputs = this->layers[i].CalculateOutputs(outputs);
 		if (i == specificLayer) {

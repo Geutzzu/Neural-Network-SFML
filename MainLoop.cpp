@@ -12,21 +12,21 @@ MainLoop* MainLoop::getInstance() {
 	return &instance;
 }
 
-
 void MainLoop::initializeClassDropdown() {
     this->classDropdown.addOption(new ColorButton(0, 0, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color::Blue, [this]() { this->dataColor = Color(0, 0, 255); }, this->textureManager->getFont("roboto"), ""));
     this->classDropdown.addOption(new ColorButton(0, 0, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color::Red, [this]() { this->dataColor = Color(255, 0, 0); }, this->textureManager->getFont("roboto"), ""));
 }
 
 
-
-MainLoop::MainLoop() : window(sf::VideoMode(1920, 1080), "Neural Network"), network({ 2, 5, 2 }), networkVisualizer(network, sf::Vector2f(450, 200), this->classColors), textureManager(TextureManager::getInstance()), gameState(GameState::InputingData), learningRateSlider(720, 40, 200, 20, learningRate, "Learning Rate"),
+MainLoop::MainLoop() : window(sf::VideoMode(1920, 1080), "Neural Network"), network({ 2, 3, 2 }), networkVisualizer(NetworkVisualizer<Neuron>(network, Vector2f(450, 350), this->classColors)), textureManager(TextureManager::getInstance()), gameState(GameState::InputingData), learningRateSlider(720, 40, 200, 20, learningRate, "Learning Rate"),
 classDropdown(10, 800, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color(25, 25, 25), {} , TextureManager::getInstance()->getFont("roboto"), ""), costGraph(200, 25, 200, 50) { 
 	this->window.setFramerateLimit(500);
 	this->circles = map<DataPoint, sf::CircleShape>();
 	this->dataPoints = set<DataPoint>();
 	this->epoch = 0;
 	this->learningRate = 0.1;
+	this->activationType = ActivationType::ReLU;
+	this->costType = CostType::MeanSquareError;
 	this->dataSetEmpty = true;
 	this->numberClasses = 2;
 	this->dataColor = Color(255, 0, 0);
@@ -74,7 +74,9 @@ classDropdown(10, 800, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color(2
 	this->resetInputsButton = Button(10, 900, 150, 50, Color(128, 128, 128), Color(160, 160, 160), [this]() { this->resetInputs(); }, TextureManager::getInstance()->getFont("roboto"), "Reset Inputs");
     this->resetTrainingButton = Button(200, 900, 180, 50, Color(128, 128, 128), Color(160, 160, 160), [this]() { this->resetTraining(); }, TextureManager::getInstance()->getFont("roboto"), "Reset Training");
     this->toggleHighlightMode = Button(420, 900, 200, 50, Color(128, 128, 128), Color(160, 160, 160), [this]() { this->toggleHighlight(); }, TextureManager::getInstance()->getFont("roboto"), "Toggle Highlight");
-    this->nextPointButton = Button(100 + this->networkVisualizer.getTotalWidth() + 50,  400 , 25, 150, Color(128, 128, 128), Color(160, 160, 160), [this]() {
+	this->toggleVisualizeMode = Button(660, 900, 200, 50, Color(128, 128, 128), Color(160, 160, 160), [this]() { this->toggleVisualize(); }, TextureManager::getInstance()->getFont("roboto"), "Toggle Visualize");
+
+    this->nextPointButton = Button(100 + visit([](auto&& arg) { return arg.getNumberOutputs(); }, networkVisualizer) + 50,  400 , 25, 150, Color(128, 128, 128), Color(160, 160, 160), [this]() {
         /// sets current data point to the next one in the set if possible
         try {
             if (this->dataPoints.empty()) 
@@ -93,7 +95,6 @@ classDropdown(10, 800, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color(2
             cerr << "Exception: " << e.what() << std::endl;
         }
     }, this->textureManager->getFont("roboto"), ">");
-
     this->previousPointButton = Button(100, 400, 25, 150, Color(128, 128, 128), Color(160, 160, 160), [this]() {
         /// sets current data point to the previous one in the set if possible
         try {
@@ -117,6 +118,13 @@ classDropdown(10, 800, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color(2
 }
 
 
+void MainLoop::toggleVisualize() {
+    this->visualizeMode = !this->visualizeMode;
+    if (!this->visualizeMode)
+        this->networkVisualizer = NetworkVisualizer<Neuron>(this->network, Vector2f(450, 350), this->classColors);
+    else
+        this->networkVisualizer = NetworkVisualizer<NeuronPlot>(this->network, Vector2f(450, 350), this->classColors);
+}
 
 void MainLoop::updateHighlight() {
     if (!this->dataSetEmpty) {
@@ -128,7 +136,7 @@ void MainLoop::updateHighlight() {
         sf::CircleShape& circle = this->circles[*this->currentDataPoint];
 
         // Set the position and radius of the highlight
-        this->highlight.setRadius(circle.getRadius());
+        this->highlight.setRadius(circle.getRadius() + 2);
         this->highlight.setPosition(circle.getPosition().x + circle.getRadius() - this->highlight.getRadius(),
         circle.getPosition().y + circle.getRadius() - this->highlight.getRadius());
         this->highlight.setFillColor(Color::Transparent);
@@ -140,6 +148,8 @@ void MainLoop::updateHighlight() {
 
 void MainLoop::toggleHighlight() {
 	this->highlightMode = !this->highlightMode;
+	if (!this->highlightMode)
+		this->highlight.setOutlineColor(Color::Transparent);
 }
 
 /// for standardization
@@ -194,7 +204,6 @@ const double& MainLoop::getCostPercentage() {
 	else
 		return 0;
 }
-
 
 
 void MainLoop::visualizePlot()
@@ -266,6 +275,7 @@ void MainLoop::eventHandler(sf::Event& event, bool& space) {
 	this->resetInputsButton.checkEvents(this->window, defaultWorldEvent);
 	this->resetTrainingButton.checkEvents(this->window, defaultWorldEvent);
     this->toggleHighlightMode.checkEvents(this->window, defaultWorldEvent);
+	this->toggleVisualizeMode.checkEvents(this->window, defaultWorldEvent);
 
     if (this->highlightMode) {
         this->previousPointButton.checkEvents(this->window, worldEvent);
@@ -273,7 +283,9 @@ void MainLoop::eventHandler(sf::Event& event, bool& space) {
     }
 
 
-	this->networkVisualizer.checkEvents(this->window, event, this->networkView);
+	/// this->networkVisualizer.checkEvents(this->window, event, this->networkView); - before varaint
+	visit([&](auto&& arg) { arg.checkEvents(this->window, event, this->networkView); }, networkVisualizer); /// after variant
+
 
 	this->learningRateSlider.handleEvent(event);
 
@@ -362,7 +374,7 @@ void MainLoop::eventHandler(sf::Event& event, bool& space) {
             this->networkView.zoom(1.1f); // Zoom out
     }
 
-    if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter && this->gameState == GameState::InputingData) {
+    if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter && this->gameState == GameState::InputingData && !this->dataPoints.empty()) {
         this->gameState = GameState::Training;
 		this->maxCost = this->network.CostFunction(this->dataPoints);
         this->costGraph.reset();
@@ -430,7 +442,7 @@ void MainLoop::trainingState() {
     }
     this->network.UpdateGradientsForDataPoint(*this->currentDataPoint); /// update the gradients for the current data point
 
-    this->network.ApplyAllGradients(this->learningRate / this->dataPoints.size(), 0.9); /// apply the gradients to the weights and biases
+	this->network.ApplyAllGradients(this->learningRate / this->dataPoints.size(), 0.9); /// apply the gradients to the weights and biases - 0.9 is for the momentum
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
     {
@@ -441,7 +453,7 @@ void MainLoop::trainingState() {
 
 
 void MainLoop::updateNumberOfClasses() {
-	this->numberClasses = this->networkVisualizer.getNumberOutputs();
+	this->numberClasses = visit([](auto&& arg) { return arg.getNumberOutputs(); }, networkVisualizer);
     if (this->numberClasses < this->classDropdown.getNumButtons())
     {
 		for (int i = this->numberClasses; i < this->classDropdown.getNumButtons(); i++)
@@ -479,7 +491,7 @@ void MainLoop::run()
 	epochText.setPosition(10, 40);
 	epochText.setCharacterSize(24);
 	epochText.setFillColor(sf::Color::White);
-    this->previousPointButton.setPosition(50, 300);
+	this->previousPointButton.setPosition(50, 360); /// position for the highlight prev button (should refactor this its a pain to change it when needed)
 
 
 
@@ -496,7 +508,9 @@ void MainLoop::run()
         if(this->highlightMode) this->updateHighlight();
 		if(this->graphDisplayed) this->costGraph.update(this->getCostPercentage()); /// cost graph update
 
-        this->nextPointButton.setPosition(100 + this->networkVisualizer.getTotalWidth() + 150, 300);
+		/// highlight buttons position
+        /// prev point 360
+        this->nextPointButton.setPosition(100 + visit([](auto&& arg) { return arg.getTotalWidth(); }, networkVisualizer) + 150, 360);
 
         /// other inputs
         this->zoomHandler();
@@ -510,18 +524,22 @@ void MainLoop::run()
         if (!this->dataSetEmpty)
             network.CalculateOutputs((*this->currentDataPoint).getInputs());
 
+		/// highlight and circles on the right
         if (this->gameState == GameState::Training) {
             this->trainingState(); /// this handles all the training logic and drawing
-            this->window.draw(this->highlight);
         }
         else if(!this->dataSetEmpty){
-            network.CalculateOutputs((*this->currentDataPoint).getInputs());
-			if (this->highlightMode) this->window.draw(this->highlight);
-                
+            network.CalculateOutputs((*this->currentDataPoint).getInputs());  
         }
         for (auto& pair : this->circles) {
             this->window.draw(pair.second);
         }
+
+		/// drawing the currentDataPoint for highlight
+		if (!this->dataSetEmpty) {
+			this->window.draw(this->circles[*this->currentDataPoint]); /// we draw it last so we can see it with the higlight also
+            if (this->highlightMode) this->window.draw(this->highlight);
+		}
         
 
         /// cost text
@@ -529,7 +547,7 @@ void MainLoop::run()
 
         /// neural net visualization and neural net view
         this->window.setView(this->networkView);
-        this->networkVisualizer.draw(this->window, this->gameState, this->dataSetEmpty); /// this visualizes the neural network
+        visit([&](auto&& arg) { arg.draw(this->window, this->gameState, this->dataSetEmpty); }, networkVisualizer);/// this visualizes the neural network
         
         if (this->highlightMode) {
 			this->previousPointButton.draw(this->window);
@@ -548,6 +566,7 @@ void MainLoop::run()
 		this->learningRateSlider.draw(this->window);
 		this->classDropdown.draw(this->window);
 		this->toggleHighlightMode.draw(this->window);
+		this->toggleVisualizeMode.draw(this->window);
 
         /// graph
 		if(this->graphDisplayed) this->costGraph.draw(this->window);
