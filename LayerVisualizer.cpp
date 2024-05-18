@@ -15,8 +15,8 @@ LayerVisualizer<NeuronPlot>::LayerVisualizer(const Layer& layer, sf::Vector2f po
 }
 
 template <>
-void LayerVisualizer<NeuronPlot>::drawNeurons(sf::RenderWindow& window, const vector<Color>& classColors) {
+void LayerVisualizer<NeuronPlot>::drawNeurons(sf::RenderWindow& window, const vector<Color>& classColors, const ActivationType& activation) {
 	for (int i = 0; i < this->neurons.size(); i++) {
-		this->neurons[i].visualizePlot(window, classColors);
+		this->neurons[i].visualizePlot(window, classColors, activation);
 	}
 }

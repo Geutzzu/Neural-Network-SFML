@@ -38,152 +38,114 @@ enum class ActivationType
 };
 
 
-template <ActivationType T>
-class Activation;
+class Activation {
+private:
+    ActivationType activationType;
 
-template <>
-class Activation<ActivationType::Sigmoid>
-{
 public:
-	double Activate(const vector<double>& inputs, int index) const
-	{
-		return 1.0 / (1 + exp(-inputs[index]));
-	}
+    Activation(ActivationType activationType) : activationType(activationType) {}
 
-	double Derivative(const vector<double>& inputs, int index) const
-	{
-		double a = Activate(inputs, index);
-		return a * (1 - a);
-	}
-	double Activate(double input) const
-	{
-		return 1.0 / (1 + exp(-input));
-	}
+    double Activate(double value) const {
+        switch (activationType) {
+        case ActivationType::Sigmoid:
+            return 1.0 / (1 + exp(-value));
+        case ActivationType::TanH: {
+            double e2 = exp(2 * value);
+            return (e2 - 1) / (e2 + 1);
+        }
+        case ActivationType::ReLU:
+            return max(0.0, value);
+        case ActivationType::SiLU:
+            return value / (1 + exp(-value));
+        default:
+            // Handle unsupported activation type
+            return 0.0;
+        }
+    }
 
-	double Derivative(double input) const
-	{
-		double a = Activate(input);
-		return a * (1 - a);
-	}
+
+    double Derivative(double value) const {
+        switch (activationType) {
+        case ActivationType::Sigmoid: {
+            double a = Activate(value);
+            return a * (1 - a);
+        }
+        case ActivationType::TanH: {
+            double e2 = exp(2 * value);
+            double t = (e2 - 1) / (e2 + 1);
+            return 1 - t * t;
+        }
+        case ActivationType::ReLU:
+            return (value > 0) ? 1 : 0;
+        case ActivationType::SiLU: {
+            double sig = 1 / (1 + exp(-value));
+            return value * sig * (1 - sig) + sig;
+        }
+        default:
+            // Handle unsupported activation type
+            return 0.0;
+        }
+    }
+
+    double Activate(const vector<double>& inputs, int index) const {
+        double input = inputs[index];
+        switch (activationType) {
+        case ActivationType::Sigmoid:
+            return 1.0 / (1 + exp(-input));
+        case ActivationType::TanH: {
+            double e2 = exp(2 * input);
+            return (e2 - 1) / (e2 + 1);
+        }
+        case ActivationType::ReLU:
+            return max(0.0, input);
+        case ActivationType::SiLU:
+            return input / (1 + exp(-input));
+        case ActivationType::Softmax: {
+            double expSum = 0;
+            for (double input : inputs) {
+                expSum += exp(input);
+            }
+            double expInput = exp(inputs[index]);
+            return expInput / expSum;
+        }
+        default:
+            // Handle unsupported activation type
+            return 0.0;
+        }
+    }
+
+    double Derivative(const vector<double>& inputs, int index) const {
+        double input = inputs[index];
+        switch (activationType) {
+        case ActivationType::Sigmoid: {
+            double a = Activate(inputs, index);
+            return a * (1 - a);
+        }
+        case ActivationType::TanH: {
+            double e2 = exp(2 * input);
+            double t = (e2 - 1) / (e2 + 1);
+            return 1 - t * t;
+        }
+        case ActivationType::ReLU:
+            return (input > 0) ? 1 : 0;
+        case ActivationType::SiLU: {
+            double sig = 1 / (1 + exp(-input));
+            return input * sig * (1 - sig) + sig;
+        }
+        case ActivationType::Softmax: {
+            double expSum = 0;
+            for (double input : inputs) {
+                expSum += exp(input);
+            }
+            double expInput = exp(inputs[index]);
+            return (expInput * expSum - expInput * expInput) / (expSum * expSum);
+        }
+        default:
+            // Handle unsupported activation type
+            return 0.0;
+        }
+    }
 };
 
-template <>
-class Activation<ActivationType::TanH>
-{
-public:
-	double Activate(const vector<double>& inputs, int index) const
-	{
-		double e2 = exp(2 * inputs[index]);
-		return (e2 - 1) / (e2 + 1);
-	}
-
-	double Derivative(const vector<double>& inputs, int index) const
-	{
-		double e2 = exp(2 * inputs[index]);
-		double t = (e2 - 1) / (e2 + 1);
-		return 1 - t * t;
-	}
-
-	double Activate(double input) const
-	{
-		double e2 = exp(2 * input);
-		return (e2 - 1) / (e2 + 1);
-	}
-
-	double Derivative(double input) const
-	{
-		double e2 = exp(2 * input);
-		double t = (e2 - 1) / (e2 + 1);
-		return 1 - t * t;
-	}
-};
-
-template <>
-class Activation<ActivationType::ReLU>
-{
-public:
-	double Activate(const vector<double>& inputs, int index) const
-	{
-		return max(0.0, inputs[index]);
-	}
-
-	double Derivative(const vector<double>& inputs, int index) const
-	{
-		return (inputs[index] > 0) ? 1 : 0;
-	}
-
-	double Activate(double input) const
-	{
-		return max(0.0, input);
-	}
-
-	double Derivative(double input) const
-	{
-		return (input > 0) ? 1 : 0;
-	}
-};
-
-template <>
-class Activation<ActivationType::SiLU>
-{
-public:
-	double Activate(const vector<double>& inputs, int index) const
-	{
-		return inputs[index] / (1 + exp(-inputs[index]));
-	}
-
-	double Derivative(const vector<double>& inputs, int index) const
-	{
-		double sig = 1 / (1 + exp(-inputs[index]));
-		return inputs[index] * sig * (1 - sig) + sig;
-	}
-
-	double Activate(double input) const
-	{
-		return input / (1 + exp(-input));
-	}
-
-	double Derivative(double input) const
-	{
-		double sig = 1 / (1 + exp(-input));
-		return input * sig * (1 - sig) + sig;
-	}
-};
-
-template <>
-class Activation<ActivationType::Softmax>
-{
-public:
-	double Activate(const vector<double>& inputs, int index) const
-	{
-		double expSum = 0;
-		for (double input : inputs)
-		{
-			expSum += exp(input);
-		}
-
-		return exp(inputs[index]) / expSum;
-	}
-
-	double Derivative(const vector<double>& inputs, int index) const
-	{
-		double expSum = 0;
-		for (double input : inputs)
-		{
-			expSum += exp(input);
-		}
-
-		double ex = exp(inputs[index]);
-
-		return (ex * expSum - ex * ex) / (expSum * expSum);
-	}
-
-};
-
-template <ActivationType T>
-Activation<T> GetActivationFromType()
-{
-	return Activation<T>(); /// return the activation function
-}
 
 

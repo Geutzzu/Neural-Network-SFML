@@ -51,7 +51,7 @@ public:
 
 	void InitializeWeightsAndBiases(); /// initialize the weights and biases of the layer
 
-	vector<double> CalculateOutputs(const vector<double>& inputs);
+	vector<double> CalculateOutputs(const vector<double>& inputs, const ActivationType& activationType);
 	void UpdateGradients(const vector<double>& specificValues);
 	void ApplyGradients(double learningRate, double momentum);
 	/// vector<double> CalculateOutputs(const vector<double>& inputs);

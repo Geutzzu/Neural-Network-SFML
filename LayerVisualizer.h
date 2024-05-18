@@ -16,7 +16,7 @@ public:
 	LayerVisualizer() = delete; /// we don't want to have a default constructor due to the references
 	LayerVisualizer(const Layer& layer, sf::Vector2f position, NeuralNetwork& network); /// we initialize the layer and the position
 
-	void drawNeurons(sf::RenderWindow& window, const vector<Color>& classColors); /// we draw the neurons
+	void drawNeurons(sf::RenderWindow& window, const vector<Color>& classColors, const ActivationType& activation); /// we draw the neurons
 	void drawConnections(sf::RenderWindow& window, double minWeight, double maxWeight); /// we draw the connections
 };
 
@@ -36,7 +36,7 @@ LayerVisualizer<NeuronPlot>::LayerVisualizer(const Layer& layer, sf::Vector2f po
 
 
 template <typename T>
-void LayerVisualizer<T>::drawNeurons(sf::RenderWindow& window, const vector<Color>& classColors) {
+void LayerVisualizer<T>::drawNeurons(sf::RenderWindow& window, const vector<Color>& classColors, const ActivationType& activation) {
 
     /// this->drawConnections(window); - > we need to draw the connections first
 
@@ -52,7 +52,7 @@ void LayerVisualizer<T>::drawNeurons(sf::RenderWindow& window, const vector<Colo
 }
 
 template <>
-void LayerVisualizer<NeuronPlot>::drawNeurons(sf::RenderWindow& window, const vector<Color>& classColors);
+void LayerVisualizer<NeuronPlot>::drawNeurons(sf::RenderWindow& window, const vector<Color>& classColors, const ActivationType& activation);
 
 
 template <typename T>

@@ -94,7 +94,7 @@ void Layer::InitializeWeightsAndBiases() {
 	return weightedInputs; /// return the outputs
 }*/
 
-vector<double> Layer::CalculateOutputs(const vector<double>& inputs) {
+vector<double> Layer::CalculateOutputs(const vector<double>& inputs, const ActivationType& activationType) {
 	this->layerData.SetInputs(inputs); /// set the inputs of the layer data
 	for (int i = 0; i < this->numberOutputs; i++) { /// for each output
 		double weightedInput = this->biases[i]; /// initialize the output to the bias
@@ -103,7 +103,7 @@ vector<double> Layer::CalculateOutputs(const vector<double>& inputs) {
 		}
 		this->layerData.SetWeightedInput(i, weightedInput); /// set the output to the output
 	}
-	Activation<ActivationType::ReLU> function; /// initialize the activation function
+	Activation function(activationType); /// initialize the activation function
 	for (int i = 0; i < this->numberOutputs; i++) { /// for each output
 		this->layerData.SetActivation(i, function.Activate(this->layerData.GetWeightedInputs(), i)); /// activate the output
 	}

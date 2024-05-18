@@ -28,13 +28,15 @@ protected:
 public:
     Button() = default;
 
-	void init(float x, float y, float width, float height, sf::Color color, sf::Color hoverColor, function<void()> onClickFunction, const sf::Font& font, const string& text);
+	void init(int x, int y, float width, float height, sf::Color color, sf::Color hoverColor, function<void()> onClickFunction, const sf::Font& font, const string& text);
 	void initText();
 
     Button(float x, float y, float width, float height, sf::Color color, sf::Color hoverColor, function<void()> onClickFunction, const sf::Font& font, const string& text);
 
 	Button(const Button& button);
 	Button& operator=(const Button& button);
+
+	virtual Button* clone() const { return new Button(*this); }
 
     virtual void checkEvents(sf::RenderWindow& window, Event& event);
 	virtual void checkEvents(sf::RenderWindow& window);
@@ -53,6 +55,8 @@ public:
 	bool getIsClicked(RenderWindow& window, Event& event) const;
 
     function<void()> getOnClickFunction() const { return onClick; }
+
+	virtual ~Button() {};
 
 };
 

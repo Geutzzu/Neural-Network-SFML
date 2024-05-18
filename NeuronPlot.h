@@ -25,7 +25,7 @@ public:
 
 
 
-	void visualizePlot(sf::RenderWindow& window, const vector<Color>& colors); /// we visualize the plot
+	void visualizePlot(sf::RenderWindow& window, const vector<Color>& colors, const ActivationType& activation); /// we visualize the plot
 	void draw(sf::RenderWindow& window, const vector<Color>& colors); /// to remember that the draw function for this class has a different signature
 
 

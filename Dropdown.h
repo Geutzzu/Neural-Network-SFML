@@ -19,16 +19,22 @@ private:
     vector<Button*> buttons;
     bool reverse;
     bool isOpen;
+	Vector2f position;
+	int width;
+	int height;
+	Color displayColor;
+	Color hoverColor;
+	Color color;
 
 public:
 
 	Dropdown();
-    Dropdown(float x, float y, float width, float height, sf::Color color, sf::Color hoverColor, sf::Color displayColor, const vector<Button*>& buttons, const sf::Font& font, const string& text, bool reverse);
-    Dropdown(float x, float y, float width, float height, sf::Color color, sf::Color hoverColor, sf::Color displayColor, const vector<Button*>& buttons, const sf::Font& font, const string& text);
+    Dropdown(float x, float y, float width, float height, sf::Color color, sf::Color hoverColor, sf::Color displayColor,  const sf::Font& font, const string& text, bool reverse);
+    Dropdown(float x, float y, float width, float height, sf::Color color, sf::Color hoverColor, sf::Color displayColor,  const sf::Font& font, const string& text);
     Dropdown(const Dropdown& dropdown);
     Dropdown& operator=(const Dropdown& dropdown);
 
-    void initializeVariables(float x, float y, float width, float height, sf::Color color, sf::Color hoverColor, sf::Color displayColor, const vector<Button*>& buttons);
+    void initializeVariables(float x, float y, float width, float height, sf::Color color, sf::Color hoverColor, sf::Color displayColor);
 
 
     void setPositions();
@@ -39,6 +45,7 @@ public:
 
     void checkEvents(sf::RenderWindow& window, sf::Event& event) override;
     void draw(sf::RenderWindow& window) override;
+    void drawOutline(sf::RenderWindow& window);
     bool getIsOpen() const;
     void setIsOpen(bool isOpen);
 

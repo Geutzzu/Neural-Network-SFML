@@ -16,10 +16,14 @@ public:
 	ColorButton(const ColorButton& button);
 	ColorButton& operator=(const ColorButton& button);
 
+	Button* clone() const override { return new ColorButton(*this); }
+
 	void checkEventsDropdown(sf::RenderWindow& window, sf::Event& event);
 
 
 	void setPosition(float x, float y) override;
 
     void draw(sf::RenderWindow& window) override;
+
+	~ColorButton() = default;
 };

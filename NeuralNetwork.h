@@ -37,29 +37,30 @@ public:
 
 	void InitializeWeightsAndBiases(); /// initialize the weights and biases of the neural network
 
-	vector<double> CalculateOutputs(const vector<double>& inputs);
+	vector<double> CalculateOutputs(const vector<double>& inputs, const ActivationType& activation);
 
-	vector<double> CalculateNeuronOutputs(const vector<double>& inputs, int specificLayer, int activeNeuron); /// for neuron plots
+	vector<double> CalculateNeuronOutputs(const vector<double>& inputs, int specificLayer, int activeNeuron, const ActivationType& activation); /// for neuron plots
 
-	int Classify(const vector<double>& inputs);
+	int Classify(const vector<double>& inputs, const ActivationType& activation);
 
-	double CostFunction(const DataPoint& dataPoint); /// calculate the cost of the data point
+	double CostFunction(const DataPoint& dataPoint, const ActivationType& activation, const CostType& costType); /// calculate the cost of the data point
 
-	double CostFunction(const set<DataPoint>& dataPoints); /// calculate the cost of the data points
+	double CostFunction(const set<DataPoint>& dataPoints, const ActivationType& activation, const CostType& costType); /// calculate the cost of the data points
 
-	void UpdateGradientsForDataPoint(const DataPoint& dataPoint);
+	void UpdateGradientsForDataPoint(const DataPoint& dataPoint, const ActivationType& activationType, const CostType& costType);
 
-	vector <double> CalculateOutputSpecificValues(const vector<double>& expectedOutputs); /// we need the expected outputs to calculate the specific values for backpropagation
 
-	vector <double> CalculateHiddenLayerOutputSpecificValues(const vector<double>& oldSpecificValues, int oldIndex); /// we need the old specific values to calculate the new specific values
+	vector <double> CalculateOutputSpecificValues(const vector<double>& expectedOutputs, const ActivationType& activationType, const CostType& costType); /// we need the expected outputs to calculate the specific values for backpropagation
+
+	vector <double> CalculateHiddenLayerOutputSpecificValues(const vector<double>& oldSpecificValues, int oldIndex, const ActivationType& activationType, const CostType& costType); /// we need the old specific values to calculate the new specific values
 
 	void Learn(vector<DataPoint> trainingBatch, double learningRate, double momentum); /// learn from a batch of data points
 
 	void ApplyAllGradients(double learningRate, double momentum); /// apply the gradients to the weights and biases
 
-	vector <DataPoint> ClassifyAll(const vector<DataPoint>& dataPoints); /// classify all the data points
+	vector <DataPoint> ClassifyAll(const vector<DataPoint>& dataPoints, const ActivationType& activation); /// classify all the data points
 
-	DataPoint Classify(const DataPoint& dataPoint); /// classify a single data point
+	DataPoint Classify(const DataPoint& dataPoint, const ActivationType& activation); /// classify a single data point
 
 
 

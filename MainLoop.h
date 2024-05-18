@@ -34,6 +34,8 @@ private:
 	Button resetTrainingButton;
 	Slider learningRateSlider;
 	Dropdown classDropdown;
+	Dropdown costDropdown;
+	Dropdown activationDropdown;
 	Button previousPointButton;
 	Button nextPointButton;
 	Button toggleHighlightMode;
@@ -45,6 +47,12 @@ private:
 	// double momentum;
 	ActivationType activationType;
 	CostType costType;
+
+	/// colors
+	Color backgroundColor;
+	Color buttonColor;
+	Color hoverColor;
+	Color displayColor;
 
 
 	/// misc
@@ -74,6 +82,7 @@ private:
 
 	MainLoop();
 	~MainLoop() = default;
+
 
 public:
 

@@ -21,14 +21,14 @@ NeuronPlot::NeuronPlot(const NeuronPlot& neuronPlot) : position(neuronPlot.posit
 }
 
 /// vector<double> NeuralNetwork::CalculateNeuronOutputs(const vector<double>& inputs, int specificLayer, int activeNeuron) 
-void NeuronPlot::visualizePlot(sf::RenderWindow& window, const vector<Color>& classColors) {
+void NeuronPlot::visualizePlot(sf::RenderWindow& window, const vector<Color>& classColors, const ActivationType& activation) {
     int width = 80 / this->pixelSize;
     int height = 80 / this->pixelSize;
     for (int x = 0; x < width; x++) {
         for (int y = 0; y < height; y++) {
             double input_1 = x / static_cast<double>(width);
             double input_2 = y / static_cast<double>(height);
-            vector<double> outputs = this->network.CalculateNeuronOutputs({ input_1, input_2 }, this->layerIndex, this->index);
+            vector<double> outputs = this->network.CalculateNeuronOutputs({ input_1, input_2 }, this->layerIndex, this->index, activation);
 
 
             // Find the index of the maximum output

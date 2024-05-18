@@ -57,53 +57,13 @@ int main() {
 
 	MainLoop* mainLoop = MainLoop::getInstance();
 	mainLoop->run();
-	/*
+	
 
-	sf::RenderWindow window(sf::VideoMode(800, 600), "Dropdown Example");
-
-	sf::Font font;
-	font = textureManager->getFont("roboto");
-
-	std::vector<Button*> buttons;
-	sf::Color normalColor = sf::Color::White;
-	sf::Color hoverColor = sf::Color::Yellow;
-	sf::Color displayColor = sf::Color::Transparent;
-
-	// Create buttons with text
-	for (int i = 0; i < 5; ++i) {
-		std::string buttonText = "Option " + std::to_string(i + 1);
-		auto button = new ColorButton(0, 0, 100, 30, normalColor, hoverColor, displayColor, []() {}, font, buttonText);
-		buttons.push_back(button);
-	}
-
-	// Create the dropdown
-	Dropdown dropdown(100, 400, 100, 30, normalColor, hoverColor, displayColor, buttons, font, "Select Option", true);
-
-	dropdown = Dropdown(100, 400, 100, 30, normalColor, hoverColor, displayColor, buttons, font, "Select Option", true);
-
-	while (window.isOpen()) {
-		sf::Event event;
-		while (window.pollEvent(event)) {
-			if (event.type == sf::Event::Closed)
-				window.close();
-
-			// Check events for the dropdown
-			dropdown.checkEvents(window, event);
-		}
-
-		window.clear();
-		// Draw the dropdown
-		dropdown.draw(window);
-		window.display();
-	}
-
-	*/
 	/*
 
 	RenderWindow window(VideoMode(1920, 1080), "Neural Network Visualizer");
 	/// ColorButton(float x, float y, float width, float height, sf::Color color, sf::Color hoverColor, sf::Color displayColor, function<void()> onClickFunction, const sf::Font & font, const string & text);
 
-	vector <Button*> buttons;
 
 	buttons.push_back(new ColorButton(100, 100, 100, 50, Color::Red, Color::Green, Color::Blue, []() { cout << "Button 1" << endl; }, textureManager->getFont("roboto"), "Button 1"));
 	buttons.push_back(new ColorButton(100, 200, 100, 50, Color::Red, Color::Green, Color::Blue, []() { cout << "Button 2" << endl; }, textureManager->getFont("roboto"), "Button 2"));

@@ -40,9 +40,9 @@ public:
 
     /// add or remove layer
     void initializeInputNeurons();
-	void drawInputNeurons(sf::RenderWindow& window, double minActivation, double maxActivation);
+	void drawInputNeurons(sf::RenderWindow& window, double minActivation, double maxActivation, const ActivationType& activation);
     void initializeValues(sf::Vector2f position);
-    void draw(sf::RenderWindow& window, GameState gameState, bool dataSetEmpty);
+    void draw(sf::RenderWindow& window, GameState gameState, bool dataSetEmpty, const ActivationType& activation);
 	void checkEvents(sf::RenderWindow& window, sf::Event event, sf::View& view);
 	
 
@@ -128,18 +128,18 @@ NetworkVisualizer<T>& NetworkVisualizer<T>::operator=(const NetworkVisualizer& n
 }
 
 template <typename T>
-void NetworkVisualizer<T>::drawInputNeurons(sf::RenderWindow& window, double minActivation, double maxActivation) {
+void NetworkVisualizer<T>::drawInputNeurons(sf::RenderWindow& window, double minActivation, double maxActivation, const ActivationType& activation) {
     for (int i = 0; i < this->inputNeurons.size(); i++) {
         this->inputNeurons[i].draw(window, minActivation, maxActivation);
     }
 }
 
 template <>
-void NetworkVisualizer<NeuronPlot>::drawInputNeurons(sf::RenderWindow& window, double minActivation, double maxActivation);
+void NetworkVisualizer<NeuronPlot>::drawInputNeurons(sf::RenderWindow& window, double minActivation, double maxActivation, const ActivationType& activation);
 
 
 template <typename T>
-void NetworkVisualizer<T>::draw(sf::RenderWindow& window, GameState gameState, bool dataSetEmpty) {
+void NetworkVisualizer<T>::draw(sf::RenderWindow& window, GameState gameState, bool dataSetEmpty, const ActivationType& activation) {
     const std::vector<double>& activations = this->network.GetLayer(0).GetLayerData().GetActivations();
     double minActivation = *std::min_element(activations.begin(), activations.end());
     double maxActivation = *std::max_element(activations.begin(), activations.end());
@@ -161,10 +161,10 @@ void NetworkVisualizer<T>::draw(sf::RenderWindow& window, GameState gameState, b
 
 
     for (int i = 0; i < this->layers.size(); i++) {
-        this->layers[i].drawNeurons(window, this->classColors);
+        this->layers[i].drawNeurons(window, this->classColors, activation);
     }
 	
-    this->drawInputNeurons(window, minActivation, maxActivation);
+    this->drawInputNeurons(window, minActivation, maxActivation, activation);
     
     if (gameState == GameState::InputingData) {
         for (int i = 0; i < this->layers.size(); i++) {

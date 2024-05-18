@@ -6,13 +6,16 @@
 void Button::initText() {
 
 	FloatRect textRect = this->buttonText.getLocalBounds();
-	this->buttonText.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f);
-	this->buttonText.setPosition(Vector2f(this->getPosition().x + this->getSize().x / 2.0f, this->getPosition().y + this->getSize().y / 2.0f));
+	this->buttonText.setOrigin(int(textRect.left + textRect.width / 2.0f), int(textRect.top + textRect.height / 2.0f));
+	this->buttonText.setPosition(int(this->getPosition().x + this->getSize().x / 2.0f), int(this->getPosition().y + this->getSize().y / 2.0f));
+
+	/// fixing text pixelation
+
 
 }
 
 
-void Button::init(float x, float y, float width, float height, Color color, Color hoverColor, function<void()> onClickFunction, const Font& font, const string& text) {
+void Button::init(int x, int y, float width, float height, Color color, Color hoverColor, function<void()> onClickFunction, const Font& font, const string& text) {
 	this->setPosition(x, y);
 	this->setSize(Vector2f(width, height));
 	this->setFillColor(color);
@@ -21,12 +24,13 @@ void Button::init(float x, float y, float width, float height, Color color, Colo
 	this->onClick = onClickFunction;
 	this->textureManager = TextureManager::getInstance();
 
+	this->buttonText.setPosition(int(x), int(y));
 	this->font = font;
 	this->buttonText.setFont(font);
 	this->buttonText.setString(text);
-	this->buttonText.setCharacterSize(24);
+	this->buttonText.setCharacterSize(20);
 	this->buttonText.setFillColor(Color::Black);
-	this->buttonText.setPosition(x, y);
+	
 
 	this->initText();
 }
@@ -43,7 +47,7 @@ Button::Button(const Button& button) : RectangleShape(button), normalColor(butto
 	this->font = textureManager->getFont("roboto");
 	this->buttonText.setFont(this->font);
 	this->buttonText.setString(button.buttonText.getString());
-	this->buttonText.setCharacterSize(24);
+	this->buttonText.setCharacterSize(20);
 	this->buttonText.setFillColor(Color::Black);
 	this->initText();
 
@@ -59,7 +63,7 @@ Button& Button::operator=(const Button& button) {
 		this->font = textureManager->getFont("roboto");
 		this->buttonText.setFont(this->font);
 		this->buttonText.setString(button.buttonText.getString());
-		this->buttonText.setCharacterSize(24);
+		this->buttonText.setCharacterSize(20);
 		this->buttonText.setFillColor(Color::Black);
 
 		this->initText();
