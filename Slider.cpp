@@ -5,10 +5,11 @@
 #include <sstream>
 
 
-void Slider::initializeVariables(float x, float y, float width, float height, double& value, std::string name) {
+void Slider::initializeVariables(float x, float y, float width, float height, double& value, std::string name, double minValue, double maxValue) {
     this->value = value;
-    /// this->textureManager = TextureManager::getInstance();
     this->name = name;
+    this->minValue = minValue;
+    this->maxValue = maxValue;
 
     track.setPosition(x, y);
     track.setSize(sf::Vector2f(width, height));
@@ -17,29 +18,46 @@ void Slider::initializeVariables(float x, float y, float width, float height, do
     handle.setSize(sf::Vector2f(20, height + 10));
     sf::Color gray(128, 128, 128);
     handle.setFillColor(gray);
-    // Calculate the center of the track and adjust for the size of the handle
-    float handleX = x;
+
+    // Calculate the initial position of the handle based on the value
+    float handleX = x + ((value - minValue) / (maxValue - minValue)) * (track.getSize().x - handle.getSize().x);
     float handleY = y + (height - handle.getSize().y) / 2;
     handle.setPosition(handleX, handleY);
 
-	this->font = TextureManager::getInstance()->getFont("roboto");
+    this->font = TextureManager::getInstance()->getFont("roboto");
     text.setFont(font);
-    text.setCharacterSize(24); // in pixels
+    text.setCharacterSize(22); // in pixels
     text.setFillColor(sf::Color::White);
-    text.setPosition(x, y - text.getCharacterSize() - 10);
     std::stringstream ss;
     ss << std::fixed << std::setprecision(2) << value;
-    text.setString(name + ":" + ss.str());
+    text.setString(name + ": " + ss.str());
+
+    // Calculate the center of the slider
+    float sliderCenter = x + width / 2;
+
+    // Calculate the position of the text
+    float textX = sliderCenter - text.getLocalBounds().width / 2;
+    float textY = y - text.getCharacterSize() - 10;
+    text.setPosition(int(textX), int(textY));
 
     this->isDragging = false;
 }
 
-Slider::Slider(float x, float y, float width, float height, double& value, std::string name) : value(value) {
-    this->initializeVariables(x, y, width, height, value, name);
+
+Slider::Slider(float x, float y, float width, float height, double& value, std::string name, double minValue, double maxValue) : value(value) {
+    this->initializeVariables(x, y, width, height, value, name, minValue, maxValue);
 }
 
 Slider::Slider(const Slider& other) : value(value) {
-    this->initializeVariables(other.track.getPosition().x, other.track.getPosition().y, other.track.getSize().x, other.track.getSize().y, other.value, other.name);
+    this->initializeVariables(other.track.getPosition().x, other.track.getPosition().y, other.track.getSize().x, other.track.getSize().y, other.value, other.name, other.minValue, other.maxValue);
+}
+
+/// does not attribute the reference - you cant do that with this operator
+Slider& Slider::operator=(const Slider& other) {
+    if (this != &other) {
+        this->initializeVariables(other.track.getPosition().x, other.track.getPosition().y, other.track.getSize().x, other.track.getSize().y, other.value, other.name, other.minValue, other.maxValue);
+    }
+    return *this;
 }
 
 
@@ -61,10 +79,15 @@ void Slider::handleEvent(const sf::Event& event) {
             newX = std::min(newX, track.getPosition().x + track.getSize().x - handle.getSize().x);
             handle.setPosition(newX, handle.getPosition().y);
 
-            value = ((newX - track.getPosition().x) / (track.getSize().x - handle.getSize().x)) * 6;
+
+            value = minValue + ((newX - track.getPosition().x) / (track.getSize().x - handle.getSize().x)) * (maxValue - minValue);
             std::stringstream ss;
             ss << std::fixed << std::setprecision(2) << value;
-            text.setString(name + ":" + ss.str());
+            text.setString(name + ": " + ss.str());
+
+            // Update the position of the text
+            float textX = track.getPosition().x + track.getSize().x / 2 - text.getLocalBounds().width / 2;
+            text.setPosition(int(textX), int(text.getPosition().y));
         }
     }
 }

@@ -12,18 +12,19 @@ private:
     sf::Text text;
     std::string name;
     double& value; // reference to the value of the slider
+    double minValue; // minimum value of the slider
+    double maxValue; // maximum value of the slider
     bool isDragging;
 
 public:
 
     Slider() = default;
 
-    Slider(float x, float y, float width, float height, double& value, std::string name);
-	Slider(const Slider& slider);
-	Slider& operator=(const Slider& slider) = delete;
+    Slider(float x, float y, float width, float height, double& value, std::string name, double minValue, double maxValue);
+    Slider(const Slider& slider);
+    Slider& operator=(const Slider& slider);
 
-
-	void initializeVariables(float x, float y, float width, float height, double& value, std::string name);
+    void initializeVariables(float x, float y, float width, float height, double& value, std::string name, double minValue, double maxValue);
     void handleEvent(const sf::Event& event);
     void setText(std::string str);
     void draw(sf::RenderWindow& window);

@@ -124,14 +124,14 @@ void NeuralNetwork::UpdateGradientsForDataPoint(const DataPoint& dataPoint, cons
 
 void NeuralNetwork::Learn(vector<DataPoint> trainingBatch, double learningRate, double momentum) {
 	for (int i = 0; i < trainingBatch.size(); i++) {
-		this->UpdateGradientsForDataPoint(trainingBatch[i], ActivationType::ReLU, CostType::MeanSquareError);
+		this->UpdateGradientsForDataPoint(trainingBatch[i], ActivationType::Sigmoid, CostType::MeanSquareError);
 	}
 	this->ApplyAllGradients(learningRate / trainingBatch.size(), momentum);
 }
 
 void NeuralNetwork::ApplyAllGradients(double learningRate, double momentum) {
 	for (int i = 0; i < this->layers.size(); i++) {
-		this->layers[i].ApplyGradients(learningRate, momentum);
+		this->layers[i].ApplyGradients(learningRate, momentum); /// apply the gradients for each layer
 	}
 }
 
@@ -141,7 +141,7 @@ vector <double> NeuralNetwork::CalculateOutputSpecificValues(const vector<double
 
 	vector<double> specificValues(expectedOutputs.size()); /// initialize the specific values - specific for each terminal node
 
-	Activation function(ActivationType::Sigmoid); /// initialize the activation function
+	Activation function(ActivationType::Sigmoid); /// initialize the activation function - this will be left on sigmoid since we have values in 0 - 1 interval
 	Cost costFunction(costType); /// initialize the cost function
 
 	for (int i = 0; i < specificValues.size(); i++) { /// for each specific value
@@ -164,9 +164,9 @@ vector <double> NeuralNetwork::CalculateHiddenLayerOutputSpecificValues(const ve
 		for (int j = 0; j < oldSpecificValues.size(); j++) { /// for each old specific value
 			sum += oldSpecificValues[j] * this->layers[oldIndex].GetWeight(i, j); /// add the old specific value * the weight to the sum
 		}
-		sum *= function.Derivative(this->GetLayerData(oldIndex - 1).GetWeightedInput(i)); /// multiply the sum by the derivative of the activation function
+		sum *= function.Derivative(this->GetLayerData(oldIndex - 1).GetWeightedInputs(), i); /// multiply the sum by the derivative of the activation function
 		newSpecificValues[i] = sum; /// set the specific value to the sum
-	}
+	} /// this->layerData.GetWeightedInputs(), i
 
 	return newSpecificValues; /// return the specific values
 

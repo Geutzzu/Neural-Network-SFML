@@ -42,7 +42,6 @@
 
 
 
-
 using namespace std;
 using namespace sf;
 
@@ -58,6 +57,8 @@ int main() {
 	MainLoop* mainLoop = MainLoop::getInstance();
 	mainLoop->run();
 	
+	
+
 
 	/*
 

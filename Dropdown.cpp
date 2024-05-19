@@ -194,7 +194,27 @@ void Dropdown::removeOption(int index) {
 
 void Dropdown::checkEvents(sf::RenderWindow& window, sf::Event& event) {
     ColorButton::checkEventsDropdown(window, event);
-    if (isOpen) {
+
+
+	/// if you click outside the dropdown we close it
+	if (event.type == sf::Event::MouseButtonPressed) {
+		if (event.mouseButton.button == sf::Mouse::Left) {
+			if (this->isOpen) {
+                /// we check for both cases where reverse is either true or false
+				if (this->reverse == true && (event.mouseButton.x < this->getPosition().x || event.mouseButton.x > this->getPosition().x + this->getSize().x ||
+					event.mouseButton.y < this->getPosition().y || event.mouseButton.y > this->getPosition().y + this->getSize().y * ( this->getNumButtons() + 1 ) ) ) {
+					this->isOpen = false;
+				}
+                if (this->reverse == false && (event.mouseButton.x < this->getPosition().x || event.mouseButton.x > this->getPosition().x + this->getSize().x ||
+                    event.mouseButton.y < this->getPosition().y - this->getSize().y * this->getNumButtons() || event.mouseButton.y > this->getPosition().y + this->getSize().y) )  {
+                    this->isOpen = false;
+                }
+			}
+		}
+	}
+
+
+    if (this->isOpen) {
 		int cnt = 0;
         for (Button* button : buttons) {
             button->checkEvents(window);
@@ -227,12 +247,14 @@ void Dropdown::checkEvents(sf::RenderWindow& window, sf::Event& event) {
 				this->selectedIndex = cnt;
 				
 
-                isOpen = false;
+                this->isOpen = false;
 
             }
             cnt++;
         }
     }
+
+
 
     if (this->selectedButton != nullptr) {
         this->selectedButton->checkHover(window);

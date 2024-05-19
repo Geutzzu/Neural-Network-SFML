@@ -29,10 +29,29 @@ private:
 	StandardizationCalculator statsX; /// not used now - no need for standardization
 	StandardizationCalculator statsY; /// not used now
 
+	/// hyperparameters
+	int epoch;
+	double learningRate;
+	double momentum;
+	ActivationType activationType;
+	CostType costType;
+
+
+	/// colors
+	Color backgroundColor;
+	Color buttonColor;
+	Color hoverColor;
+	Color displayColor;
+
+	/// sizes
+	int normalButtonWidth;
+	int normalButtonHeight;
+
 	/// buttons and sliders
 	Button resetInputsButton;
 	Button resetTrainingButton;
 	Slider learningRateSlider;
+	Slider momentumSlider;
 	Dropdown classDropdown;
 	Dropdown costDropdown;
 	Dropdown activationDropdown;
@@ -41,19 +60,8 @@ private:
 	Button toggleHighlightMode;
 	Button toggleVisualizeMode;
 
-	/// hyperparameters
-	int epoch;
-	double learningRate;
-	// double momentum;
-	ActivationType activationType;
-	CostType costType;
-
-	/// colors
-	Color backgroundColor;
-	Color buttonColor;
-	Color hoverColor;
-	Color displayColor;
-
+	/// Clocks
+	Clock dataPointClock;
 
 	/// misc
 	bool dataSetEmpty;
@@ -64,6 +72,7 @@ private:
 	int numberClasses;
 	set<DataPoint>::iterator currentDataPoint;
 	double maxCost;
+	bool isAddingDataPoints;
 
 
 	/// plot visualization
@@ -78,6 +87,11 @@ private:
 	/// views
 	View plotView;
 	View networkView;
+
+	/// ctrl z / ctrl y
+	stack<DataPoint> undoStack;
+	stack<DataPoint> redoStack;
+	CircleShape dataCircle;
 
 
 	MainLoop();
@@ -97,6 +111,8 @@ public:
 	void initializeActivationDropdown();
 
 	/// functions for functionality
+	void holdForDataPoint();
+	void addDataPoint(Event& event);
 	void updateHighlight();
 	void updateNumberOfClasses();
 	void drawRightHalfScreen();
@@ -109,6 +125,10 @@ public:
 	void toggleHighlight();
 	void toggleVisualize();
 	const double& getCostPercentage();
+
+	/// undo redo
+	void undo();
+	void redo();
 
 	/// standardization
 	double calculateMeanX();

@@ -94,10 +94,10 @@ void NetworkVisualizer<T>::initializeValues(sf::Vector2f position) {
 	///Button addLayerButton(position.x + (this->network.GetNumberLayers() - 1) * 340 - 23, position.y + 500, 50, 50, Color(128, 128, 128), Color(160, 160, 160), [this]() { this->addLayer(); }, textureManager->getFont("roboto"), "+");
 	///Button removeLayerButton(position.x + (this->network.GetNumberLayers() - 1) * 340 + 75 - 23, position.y + 500, 50, 50, Color(128, 128, 128), Color(160, 160, 160), [this]() { this->removeLayer(); }, textureManager->getFont("roboto"), "-");
     /// this will NOT be placed in the network view it will be independent
-    Button addLayerButton(225, 110, 50, 50, Color(128, 128, 128), Color(160, 160, 160), [this]() { this->addLayer(); }, textureManager->getFont("roboto"), "+");
-    Button removeLayerButton(225 + 75, 110, 50, 50, Color(128, 128, 128), Color(160, 160, 160), [this]() { this->removeLayer(); }, textureManager->getFont("roboto"), "-");
+    Button addLayerButton(220, 105, 50, 50, Color(128, 128, 128), Color(160, 160, 160), [this]() { this->addLayer(); }, textureManager->getFont("roboto"), "+");
+    Button removeLayerButton(220 + 75, 105, 50, 50, Color(128, 128, 128), Color(160, 160, 160), [this]() { this->removeLayer(); }, textureManager->getFont("roboto"), "-");
 
-	this->layersText.setCharacterSize(24);
+	this->layersText.setCharacterSize(22); /// text size in pixels
 	this->layersText.setFont(textureManager->getFont("roboto"));
 	this->layersText.setFillColor(Color::White);
 	this->layersText.setString("Add or Remove\nHidden Layers");

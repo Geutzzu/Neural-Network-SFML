@@ -13,34 +13,35 @@ MainLoop* MainLoop::getInstance() {
 }
 
 void MainLoop::initializeClassDropdown() {
-    this->classDropdown.addOption(new ColorButton(0, 0, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color::Blue, [this]() { this->dataColor = Color(0, 0, 255); }, this->textureManager->getFont("roboto"), ""));
-    this->classDropdown.addOption(new ColorButton(0, 0, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color::Red, [this]() { this->dataColor = Color(255, 0, 0); }, this->textureManager->getFont("roboto"), ""));
+    this->classDropdown.addOption(new ColorButton(0, 0, 200, 50, Color(50, 50, 50), Color(105, 105, 105), Color::Blue, [this]() { this->dataColor = Color(0, 0, 255); }, this->textureManager->getFont("roboto"), ""));
+    this->classDropdown.addOption(new ColorButton(0, 0, 200, 50, Color(50, 50, 50), Color(105, 105, 105), Color::Red, [this]() { this->dataColor = Color(255, 0, 0); }, this->textureManager->getFont("roboto"), ""));
 }
 
 void MainLoop::initializeActivationDropdown() {
-	this->activationDropdown.addOption(new Button(0, 0, 150, 50, this->buttonColor, this->hoverColor, [this]() { this->activationType = ActivationType::ReLU; }, this->textureManager->getFont("roboto"), "ReLU"));
-	this->activationDropdown.addOption(new Button(0, 0, 150, 50, this->buttonColor, this->hoverColor, [this]() { this->activationType = ActivationType::Sigmoid; }, this->textureManager->getFont("roboto"), "Sigmoid"));
-	this->activationDropdown.addOption(new Button(0, 0, 150, 50, this->buttonColor, this->hoverColor, [this]() { this->activationType = ActivationType::TanH; }, this->textureManager->getFont("roboto"), "TanH"));
-	this->activationDropdown.addOption(new Button(0, 0, 150, 50, this->buttonColor, this->hoverColor, [this]() { this->activationType = ActivationType::SiLU; }, this->textureManager->getFont("roboto"), "SiLU"));
-	this->activationDropdown.addOption(new Button(0, 0, 150, 50, this->buttonColor, this->hoverColor, [this]() { this->activationType = ActivationType::Softmax; }, this->textureManager->getFont("roboto"), "Softmax"));
+	this->activationDropdown.addOption(new Button(0, 0, this->normalButtonWidth, this->normalButtonHeight, this->buttonColor, this->hoverColor, [this]() { this->activationType = ActivationType::ReLU; }, this->textureManager->getFont("roboto"), "ReLU"));
+	this->activationDropdown.addOption(new Button(0, 0, this->normalButtonWidth, this->normalButtonHeight, this->buttonColor, this->hoverColor, [this]() { this->activationType = ActivationType::Sigmoid; }, this->textureManager->getFont("roboto"), "Sigmoid"));
+	this->activationDropdown.addOption(new Button(0, 0, this->normalButtonWidth, this->normalButtonHeight, this->buttonColor, this->hoverColor, [this]() { this->activationType = ActivationType::TanH; }, this->textureManager->getFont("roboto"), "TanH"));
+	this->activationDropdown.addOption(new Button(0, 0, this->normalButtonWidth, this->normalButtonHeight, this->buttonColor, this->hoverColor, [this]() { this->activationType = ActivationType::SiLU; }, this->textureManager->getFont("roboto"), "SiLU"));
+	this->activationDropdown.addOption(new Button(0, 0, this->normalButtonWidth, this->normalButtonHeight, this->buttonColor, this->hoverColor, [this]() { this->activationType = ActivationType::Softmax; }, this->textureManager->getFont("roboto"), "Softmax"));
 }
 
 void MainLoop::initializeCostDropdown() {
-	this->costDropdown.addOption(new Button(0, 0, 150, 50, this->buttonColor, this->hoverColor, [this]() { this->costType = CostType::MeanSquareError; }, this->textureManager->getFont("roboto"), "MSE"));
-	this->costDropdown.addOption(new Button(0, 0, 150, 50, this->buttonColor, this->hoverColor, [this]() { this->costType = CostType::CrossEntropy; }, this->textureManager->getFont("roboto"), "Cross Entropy"));
+	this->costDropdown.addOption(new Button(0, 0, this->normalButtonWidth, this->normalButtonHeight, this->buttonColor, this->hoverColor, [this]() { this->costType = CostType::MeanSquareError; }, this->textureManager->getFont("roboto"), "MSE"));
+	this->costDropdown.addOption(new Button(0, 0, this->normalButtonWidth, this->normalButtonHeight, this->buttonColor, this->hoverColor, [this]() { this->costType = CostType::CrossEntropy; }, this->textureManager->getFont("roboto"), "Cross Entropy"));
 }
 
 
-MainLoop::MainLoop() : window(sf::VideoMode(1920, 1080), "Neural Network"), network({ 2, 3, 2 }), networkVisualizer(NetworkVisualizer<Neuron>(network, Vector2f(450, 350), this->classColors)), textureManager(TextureManager::getInstance()), gameState(GameState::InputingData), learningRateSlider(720, 40, 200, 20, learningRate, "Learning Rate"),
-    classDropdown(10, 800, 150, 50, Color(50, 50, 50), Color(105, 105, 105), Color(25, 25, 25), TextureManager::getInstance()->getFont("roboto"), ""), 
-    activationDropdown(780, 100, 150, 50, Color(128, 128, 128), Color(160, 160, 160), Color::Transparent, TextureManager::getInstance()->getFont("roboto"), "ReLU", true),
-    costDropdown(600, 100, 150, 50, Color(128, 128, 128), Color(160, 160, 160), Color::Transparent, TextureManager::getInstance()->getFont("roboto"), "MSE", true),
+MainLoop::MainLoop() : window(sf::VideoMode(1920, 1080), "Neural Network"), network({ 2, 3, 2 }), networkVisualizer(NetworkVisualizer<Neuron>(network, Vector2f(450, 350), this->classColors)), textureManager(TextureManager::getInstance()), gameState(GameState::InputingData), learningRate(0.1), momentum(0.9),  learningRateSlider(750, 40, 200, 15, this->learningRate, "Learning Rate", 0, 3),
+    normalButtonHeight(40), normalButtonWidth(135),
+    momentumSlider(750, 100, 200, 15, this->momentum, "Momentum", 0, 1),
+    classDropdown(20, 840, 200, 50, Color(50, 50, 50), Color(105, 105, 105), Color(25, 25, 25), TextureManager::getInstance()->getFont("roboto"), ""),
+    activationDropdown(590, 20, this->normalButtonWidth, this->normalButtonHeight, Color(128, 128, 128), Color(160, 160, 160), Color::Transparent, TextureManager::getInstance()->getFont("roboto"), "ReLU", true),
+    costDropdown(430, 20, this->normalButtonWidth, this->normalButtonHeight, Color(128, 128, 128), Color(160, 160, 160), Color::Transparent, TextureManager::getInstance()->getFont("roboto"), "MSE", true),
     costGraph(200, 25, 200, 50) { 
 	this->window.setFramerateLimit(500);
-	this->circles = map<DataPoint, sf::CircleShape>();
+	this->circles = map<DataPoint, CircleShape>();
 	this->dataPoints = set<DataPoint>();
 	this->epoch = 0;
-	this->learningRate = 0.1;
 	this->activationType = ActivationType::ReLU;
 	this->costType = CostType::MeanSquareError;
 	this->dataSetEmpty = true;
@@ -61,6 +62,9 @@ MainLoop::MainLoop() : window(sf::VideoMode(1920, 1080), "Neural Network"), netw
 	this->graphDisplayed = true;
 	this->statsX = StandardizationCalculator();
 	this->statsY = StandardizationCalculator();
+
+    ///clocks
+	this->dataPointClock.restart();
 
 
     /// plot visualization
@@ -93,10 +97,10 @@ MainLoop::MainLoop() : window(sf::VideoMode(1920, 1080), "Neural Network"), netw
 
 
     /// buttons and sliders
-	this->resetInputsButton = Button(10, 900, 150, 50, this->buttonColor, this->hoverColor, [this]() { this->resetInputs(); }, TextureManager::getInstance()->getFont("roboto"), "Reset Inputs");
-    this->resetTrainingButton = Button(200, 900, 180, 50, this->buttonColor, this->hoverColor, [this]() { this->resetTraining(); }, TextureManager::getInstance()->getFont("roboto"), "Reset Training");
-    this->toggleHighlightMode = Button(420, 900, 200, 50, this->buttonColor, this->hoverColor, [this]() { this->toggleHighlight(); }, TextureManager::getInstance()->getFont("roboto"), "Toggle Highlight");
-	this->toggleVisualizeMode = Button(660, 900, 200, 50, this->buttonColor, this->hoverColor, [this]() { this->toggleVisualize(); }, TextureManager::getInstance()->getFont("roboto"), "Toggle Visualize");
+	this->resetInputsButton = Button(20, 920, 200, 50, this->buttonColor, this->hoverColor, [this]() { this->resetInputs(); }, TextureManager::getInstance()->getFont("roboto"), "Reset Inputs");
+    this->resetTrainingButton = Button(20 + 238, 920, 200, 50, this->buttonColor, this->hoverColor, [this]() { this->resetTraining(); }, TextureManager::getInstance()->getFont("roboto"), "Reset Training");
+    this->toggleHighlightMode = Button(20 + 2 * 238, 920, 200, 50, this->buttonColor, this->hoverColor, [this]() { this->toggleHighlight(); }, TextureManager::getInstance()->getFont("roboto"), "Toggle Highlight");
+	this->toggleVisualizeMode = Button(20 + 3 * 238, 920, 200, 50, this->buttonColor, this->hoverColor, [this]() { this->toggleVisualize(); }, TextureManager::getInstance()->getFont("roboto"), "Toggle Visualize");
 
     this->nextPointButton = Button(100 + visit([](auto&& arg) { return arg.getNumberOutputs(); }, networkVisualizer) + 50,  400 , 25, 150, this->buttonColor, this->hoverColor, [this]() {
         /// sets current data point to the next one in the set if possible
@@ -135,7 +139,9 @@ MainLoop::MainLoop() : window(sf::VideoMode(1920, 1080), "Neural Network"), netw
         }
     }, this->textureManager->getFont("roboto"), "<");
 
-	
+	/// undo redo
+	this->undoStack = stack<DataPoint>();
+	this->redoStack = stack<DataPoint>();
 
 }
 
@@ -276,10 +282,141 @@ void MainLoop::visualizePlot()
 }
 
 
+void MainLoop::undo() {
+    if (!this->undoStack.empty()) {
+        // Remove the last data point
+        DataPoint point = undoStack.top();
+        this->undoStack.pop();
+
+        // Check if the currentDataPoint is the one being removed
+        if (*this->currentDataPoint == point) {
+            if (this->currentDataPoint != this->dataPoints.begin()) {
+                --this->currentDataPoint; // Move to the previous data point
+            }
+            else {
+                this->currentDataPoint = this->dataPoints.end(); // No previous data point, set to end
+				this->dataSetEmpty = true;
+            }
+
+        }
+
+        // Remove from dataPoints and circles
+        this->dataPoints.erase(point);
+        this->circles.erase(point);
+
+        // Push onto redo stack
+        this->redoStack.push(point);
+    }
+}
+
+void MainLoop::redo() {
+    if (!this->redoStack.empty()) {
+        // Add the data point back
+        DataPoint point = redoStack.top();
+        this->redoStack.pop();
+
+        // Add to dataPoints and circles
+        this->dataPoints.insert(point);
+
+        /// calculating the data color from the point
+		Color pointColor;
+		for (int i = 0; i < this->numberClasses; i++) {
+			if (point.getOutputs()[i] == 1) {
+				pointColor = this->classColors[i];
+			}
+		}
+
+		CircleShape circle(10);
+		circle.setFillColor(pointColor);
+		circle.setPosition(point.getInputs()[0] * this->window.getSize().x / 2 + this->window.getSize().x / 2, point.getInputs()[1] * this->window.getSize().y);
+		circle.setOutlineThickness(2); // Set the thickness of the outline
+		circle.setOutlineColor(sf::Color::White); // Set the color of the outline
+
+        this->circles[point] = circle; // Assuming 'circle' is the corresponding CircleShape
+
+        // Push onto undo stack
+        this->undoStack.push(point);
+    }
+}
+
+
+void MainLoop::addDataPoint(Event& event) {
+    sf::CircleShape circle(10);
+    circle.setFillColor(this->dataColor);
+    circle.setPosition(event.mouseButton.x, event.mouseButton.y);
+    circle.setOutlineThickness(2); // Set the thickness of the outline
+    circle.setOutlineColor(sf::Color::White); // Set the color of the outline
+
+    double normalizedX = event.mouseButton.x / static_cast<double>(this->window.getSize().x / 2) - 1;
+    double normalizedY = event.mouseButton.y / static_cast<double>(this->window.getSize().y);
+
+    double x = event.mouseButton.x;
+    double y = event.mouseButton.y;
+
+    this->statsX.add(x);
+    this->statsY.add(y);
+
+    /// double meanX = this->calculateMeanX(); /// for standardization
+    /// double stdDevX = this->calculateStdDevX(); /// for standardization
+    /// double meanY = this->calculateMeanY(); /// for standardization
+    /// double stdDevY = this->calculateStdDevY(); /// for standardization
+
+    /// double standardizedX = (event.mouseButton.x - meanX) / stdDevX;
+    /// double standardizedY = (event.mouseButton.y - meanY) / stdDevY;
+
+    DataPoint point;
+    for (int i = 0; i < this->numberClasses; i++) {
+        if (this->dataColor == this->classColors[i]) {
+            vector<double> outputs(this->numberClasses, 0);
+            outputs[i] = 1;
+            point = DataPoint({ normalizedX, normalizedY }, outputs);
+            this->dataPoints.insert(point);
+            this->circles[point] = circle;
+            if (this->dataSetEmpty)
+                this->currentDataPoint = this->dataPoints.begin(); /// we must initialize this
+        }
+    }
+    this->dataSetEmpty = false;
+
+	undoStack.push(point); /// push the data point to the undo stack
+}
+
+
+void MainLoop::holdForDataPoint() {
+    if (isAddingDataPoints && sf::Mouse::isButtonPressed(sf::Mouse::Left) && dataPointClock.getElapsedTime().asMilliseconds() > 100) {
+        // Create a new event with the current mouse position
+        sf::Event newEvent;
+        newEvent.type = sf::Event::MouseButtonPressed;
+        newEvent.mouseButton.button = sf::Mouse::Left;
+        newEvent.mouseButton.x = sf::Mouse::getPosition(window).x;
+        newEvent.mouseButton.y = sf::Mouse::getPosition(window).y;
+
+        // Add the data point
+        this->addDataPoint(newEvent);
+
+        // Restart the clock
+        dataPointClock.restart();
+    }
+}
+
 void MainLoop::eventHandler(sf::Event& event, bool& space) {
     if (event.type == sf::Event::Closed) {
         this->window.close();
     }
+
+	/// undo redo
+
+    if (event.type == sf::Event::KeyPressed) {
+        if (event.key.control) {
+            if (event.key.code == sf::Keyboard::Z) {
+				this->undo();
+            }
+            else if (event.key.code == sf::Keyboard::Y) {
+                this->redo();
+            }
+        }
+    }
+
 
     /// buttons and sliders
     sf::Vector2i pixelPos = sf::Mouse::getPosition(this->window);
@@ -310,6 +447,7 @@ void MainLoop::eventHandler(sf::Event& event, bool& space) {
 
 
 	this->learningRateSlider.handleEvent(event);
+	this->momentumSlider.handleEvent(event);
 
     /// dropdowns
 
@@ -320,81 +458,21 @@ void MainLoop::eventHandler(sf::Event& event, bool& space) {
         this->costDropdown.checkEvents(this->window, event);
     }
 	
+    if (event.type == Event::MouseButtonPressed && event.mouseButton.x > this->window.getSize().x / 2 && this->gameState == GameState::InputingData) { /// for adding data points
+        if (event.mouseButton.button == Mouse::Left) {
 
-
-    /*if (event.KeyPressed && event.key.code == sf::Keyboard::L && space == false)
-    {
-        DataPoint point;
-        this->dataPoints = point.GenerateDataPointsPixel(500);
-        for (auto& dataPoint : this->dataPoints) 
-        {
-            if (dataPoint.GetOutputs()[0] == 1)
-            {
-                double normalizedX = dataPoint.GetInputs()[0] / static_cast<double>(this->window.getSize().x / 2) - 1;
-                double normalizedY = dataPoint.GetInputs()[1] / static_cast<double>(this->window.getSize().y);
-                this->circles.push_back(sf::CircleShape(10));
-                this->circles.back().setFillColor(sf::Color::Blue);
-                this->circles.back().setPosition(dataPoint.GetInputs()[0], dataPoint.GetInputs()[1]);
-                this->circles.back().setOutlineThickness(2); // Set the thickness of the outline
-                this->circles.back().setOutlineColor(sf::Color::White); // Set the color of the outline
-                dataPoint.SetInputs({ normalizedX, normalizedY });
-            }
-            else if (dataPoint.GetOutputs()[1] == 1)
-            {
-                this->circles.push_back(sf::CircleShape(10));
-                this->circles.back().setFillColor(sf::Color::Red);
-                this->circles.back().setPosition(dataPoint.GetInputs()[0], dataPoint.GetInputs()[1]);
-                this->circles.back().setOutlineThickness(2); // Set the thickness of the outline
-                this->circles.back().setOutlineColor(sf::Color::White); // Set the color of the outline
-                double normalizedX = dataPoint.GetInputs()[0] / static_cast<double>(this->window.getSize().x / 2) - 1;
-                double normalizedY = dataPoint.GetInputs()[1] / static_cast<double>(this->window.getSize().y);
-                dataPoint.SetInputs({ normalizedX, normalizedY });
-            }
-        }
-        this->gameState = GameState::Training;
-        space = true;
-    }
-    */
-    if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.x > this->window.getSize().x / 2 && this->gameState == GameState::InputingData) {
-        if (event.mouseButton.button == sf::Mouse::Left) {
-            sf::CircleShape circle(10);
-            circle.setFillColor(this->dataColor);
-            circle.setPosition(event.mouseButton.x, event.mouseButton.y);
-            circle.setOutlineThickness(2); // Set the thickness of the outline
-            circle.setOutlineColor(sf::Color::White); // Set the color of the outline
-
-            double normalizedX = event.mouseButton.x / static_cast<double>(this->window.getSize().x / 2) - 1;
-            double normalizedY = event.mouseButton.y / static_cast<double>(this->window.getSize().y);
-
-            double x = event.mouseButton.x;
-            double y = event.mouseButton.y;
-
-            this->statsX.add(x);
-            this->statsY.add(y);
-
-			/// double meanX = this->calculateMeanX(); /// for standardization
-			/// double stdDevX = this->calculateStdDevX(); /// for standardization
-			/// double meanY = this->calculateMeanY(); /// for standardization
-			/// double stdDevY = this->calculateStdDevY(); /// for standardization
-
-            /// double standardizedX = (event.mouseButton.x - meanX) / stdDevX;
-            /// double standardizedY = (event.mouseButton.y - meanY) / stdDevY;
-
-
-            for (int i = 0; i < this->numberClasses; i++) {
-                if (this->dataColor == this->classColors[i]) {
-                    vector<double> outputs(this->numberClasses, 0);
-                    outputs[i] = 1;
-                    DataPoint point({ normalizedX, normalizedY }, outputs); /// to change
-                    this->dataPoints.insert(point);
-                    this->circles[point] = circle;
-                    if (this->dataSetEmpty)
-                        this->currentDataPoint = this->dataPoints.begin(); /// we must initialize this
-                }
-            }
-            this->dataSetEmpty = false;
+			this->addDataPoint(event);
+            isAddingDataPoints = true;
+            dataPointClock.restart();
         }
     }
+    else if (event.type == Event::MouseButtonReleased) {
+        if (event.mouseButton.button == Mouse::Left) {
+            isAddingDataPoints = false;
+        }
+    }
+
+
 
     if (event.type == sf::Event::MouseWheelScrolled)
     {
@@ -472,7 +550,7 @@ void MainLoop::trainingState() {
     }
     this->network.UpdateGradientsForDataPoint(*this->currentDataPoint, this->activationType, this->costType); /// update the gradients for the current data point
 
-	this->network.ApplyAllGradients(this->learningRate / this->dataPoints.size(), 0.9); /// apply the gradients to the weights and biases - 0.9 is for the momentum
+	this->network.ApplyAllGradients(this->learningRate / this->dataPoints.size(), this->momentum); /// apply the gradients to the weights and biases - 0.9 is for the momentum
 
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
     {
@@ -495,7 +573,7 @@ void MainLoop::updateNumberOfClasses() {
     {
         for (int i = this->classDropdown.getNumButtons(); i < this->numberClasses; i++)
         {
-			this->classDropdown.addOption(new ColorButton(0, 0, 150, 50, Color(50, 50, 50), Color(105, 105, 105), this->classColors[i], [this, i]() { this->dataColor = this->classColors[i]; }, this->textureManager->getFont("roboto"), ""));
+			this->classDropdown.addOption(new ColorButton(0, 0, 200, 50, Color(50, 50, 50), Color(105, 105, 105), this->classColors[i], [this, i]() { this->dataColor = this->classColors[i]; }, this->textureManager->getFont("roboto"), ""));
         }
     }
 }
@@ -509,17 +587,17 @@ void MainLoop::run()
 
     bool space = false;
 
-    sf::Text costFunctionText;
-	sf::Text epochText;
-    sf::Font font;
+    Text costFunctionText;
+	Text epochText;
+    Font font;
     font = this->textureManager->getFont("roboto");
     costFunctionText.setFont(font);
-    costFunctionText.setPosition(10, 10);
-    costFunctionText.setCharacterSize(24);
+    costFunctionText.setPosition(10, 15);
+    costFunctionText.setCharacterSize(22);
     costFunctionText.setFillColor(sf::Color::White);
 	epochText.setFont(font);
-	epochText.setPosition(10, 40);
-	epochText.setCharacterSize(24);
+	epochText.setPosition(10, 45);
+	epochText.setCharacterSize(22);
 	epochText.setFillColor(sf::Color::White);
 	this->previousPointButton.setPosition(50, 360); /// position for the highlight prev button (should refactor this its a pain to change it when needed)
 
@@ -532,6 +610,10 @@ void MainLoop::run()
         {
             this->eventHandler(event, space);
         }
+
+		/// for adding data points
+		this->holdForDataPoint();
+
 
         ////updates
         this->updateNumberOfClasses();
@@ -572,9 +654,6 @@ void MainLoop::run()
 		}
         
 
-        /// cost text
-        
-
         /// neural net visualization and neural net view
         this->window.setView(this->networkView);
         visit([&](auto&& arg) { arg.draw(this->window, this->gameState, this->dataSetEmpty, this->activationType); }, networkVisualizer);/// this visualizes the neural network
@@ -594,6 +673,7 @@ void MainLoop::run()
 		this->resetInputsButton.draw(this->window);
 		this->resetTrainingButton.draw(this->window);
 		this->learningRateSlider.draw(this->window);
+		this->momentumSlider.draw(this->window);
 
         ///dropdowns
 
