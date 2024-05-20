@@ -10,8 +10,10 @@ private:
 	sf::Font font;
 	sf::Text text;
 	const double& value; // reference to a float
-	TextureManager* textureManager;
+	double previousValue;
+	double previousNormalizedValue;
 	Vector2f position;
+
 public:
 
 	Neuron() = delete;

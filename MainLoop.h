@@ -109,6 +109,7 @@ public:
 	void initializeClassDropdown();
 	void initializeCostDropdown();
 	void initializeActivationDropdown();
+	void computePlotPositions();
 
 	/// functions for functionality
 	void holdForDataPoint();

@@ -228,11 +228,8 @@ void NetworkVisualizer<T>::addNeuron(int layerIndex) {
             layerSizes.push_back(numNeurons);
         }
 
-        // Create a new NeuralNetwork with an additional neuron in the specified layer
-        NeuralNetwork newNetwork(layerSizes);
-
         // Replace the old network with the new one
-        this->network = newNetwork;
+        this->network = NeuralNetwork(layerSizes);
 
         // Reinitialize the NetworkVisualizer
         this->layers.clear();
@@ -272,11 +269,8 @@ void NetworkVisualizer<T>::removeNeuron(int layerIndex) {
             layerSizes.push_back(numNeurons);
         }
 
-        // Create a new NeuralNetwork with one less neuron in the specified layer
-        NeuralNetwork newNetwork(layerSizes);
-
         // Replace the old network with the new one
-        this->network = newNetwork;
+        this->network = NeuralNetwork(layerSizes);
 
         // Reinitialize the NetworkVisualizer
         this->layers.clear();
@@ -309,11 +303,8 @@ void NetworkVisualizer<T>::addLayer() {
 	}
 
 
-	// Create a new NeuralNetwork with an additional neuron in the specified layer
-	NeuralNetwork newNetwork(layerSizes);
-
-	// Replace the old network with the new one
-	this->network = newNetwork;
+    // Replace the old network with the new one
+    this->network = NeuralNetwork(layerSizes);
 
 	// Reinitialize the NetworkVisualizer
 	this->layers.clear();
@@ -340,11 +331,8 @@ void NetworkVisualizer<T>::removeLayer() {
             layerSizes.push_back(numNeurons);
         }
 
-        // Create a new NeuralNetwork with an additional neuron in the specified layer
-        NeuralNetwork newNetwork(layerSizes);
-
         // Replace the old network with the new one
-        this->network = newNetwork;
+        this->network = NeuralNetwork(layerSizes);
 
         // Reinitialize the NetworkVisualizer
         this->layers.clear();

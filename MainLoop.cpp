@@ -72,6 +72,7 @@ MainLoop::MainLoop() : window(sf::VideoMode(1920, 1080), "Neural Network"), netw
     int width = this->window.getSize().x / (2 * this->pixelSize);
     int height = this->window.getSize().y / this->pixelSize;
     this->pixels = VertexArray(Triangles, width * height * 6); // 6 vertices for each pixel (2 triangles)
+	this->computePlotPositions();
 
 	/// class dropdown
 	this->initializeClassDropdown();
@@ -156,14 +157,14 @@ void MainLoop::toggleVisualize() {
 
 void MainLoop::updateHighlight() {
     if (!this->dataSetEmpty) {
-        // Calculate a sinusoidal value based on the elapsed time
+        // Calculating a sinusoidal value based on the elapsed time
         float time = this->clock.getElapsedTime().asSeconds();
         float alpha = 127.5f * sin(2.0f * 3.14159f * time) + 127.5f;
 
-        // Get the circle corresponding to the current data point
+        // Getting the circle corresponding to the current data point
         sf::CircleShape& circle = this->circles[*this->currentDataPoint];
 
-        // Set the position and radius of the highlight
+        // Setting the position and radius of the highlight
         this->highlight.setRadius(circle.getRadius() + 2);
         this->highlight.setPosition(circle.getPosition().x + circle.getRadius() - this->highlight.getRadius(),
         circle.getPosition().y + circle.getRadius() - this->highlight.getRadius());
@@ -233,6 +234,27 @@ const double& MainLoop::getCostPercentage() {
 		return 0;
 }
 
+void MainLoop::computePlotPositions() {
+    int width = this->window.getSize().x / (2 * pixelSize);
+    int height = this->window.getSize().y / pixelSize;
+	for (int x = 0; x < width; x++) {
+		for (int y = 0; y < height; y++) {
+            Vector2f pos(x * this->pixelSize, y * this->pixelSize);
+
+            // Set the position and color of each vertex
+            int i = (x + y * width) * 6; // index for this pixel
+            // First triangle
+            this->pixels[i + 0].position = pos + Vector2f(this->window.getSize().x / 2, 0);
+            this->pixels[i + 1].position = pos + Vector2f(this->pixelSize, 0) + Vector2f(this->window.getSize().x / 2, 0);
+            this->pixels[i + 2].position = pos + Vector2f(0, this->pixelSize) + Vector2f(this->window.getSize().x / 2, 0);
+            // Second triangle
+            this->pixels[i + 3].position = pos + Vector2f(0, this->pixelSize) + Vector2f(this->window.getSize().x / 2, 0);
+            this->pixels[i + 4].position = pos + Vector2f(this->pixelSize, 0) + Vector2f(this->window.getSize().x / 2, 0);
+            this->pixels[i + 5].position = pos + Vector2f(this->pixelSize, this->pixelSize) + Vector2f(this->window.getSize().x / 2, 0);
+		}
+	}
+
+}
 
 void MainLoop::visualizePlot()
 {
@@ -256,19 +278,8 @@ void MainLoop::visualizePlot()
             // Get the color for this pixel
             Color color = this->classColors[maxIndex];
 
-            // Calculate the position of this pixel
-            Vector2f pos(x * this->pixelSize, y * this->pixelSize);
-
-            // Set the position and color of each vertex
             int i = (x + y * width) * 6; // index for this pixel
-            // First triangle
-            this->pixels[i + 0].position = pos + Vector2f(this->window.getSize().x / 2, 0);
-            this->pixels[i + 1].position = pos + Vector2f(this->pixelSize, 0) + Vector2f(this->window.getSize().x / 2, 0);
-            this->pixels[i + 2].position = pos + Vector2f(0, this->pixelSize) + Vector2f(this->window.getSize().x / 2, 0);
-            // Second triangle
-            this->pixels[i + 3].position = pos + Vector2f(0, this->pixelSize) + Vector2f(this->window.getSize().x / 2, 0);
-            this->pixels[i + 4].position = pos + Vector2f(this->pixelSize, 0) + Vector2f(this->window.getSize().x / 2, 0);
-            this->pixels[i + 5].position = pos + Vector2f(this->pixelSize, this->pixelSize) + Vector2f(this->window.getSize().x / 2, 0);
+
             for (int j = 0; j < 6; j++) {
                 this->pixels[i + j].color = color;
             }

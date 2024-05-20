@@ -15,6 +15,11 @@ private:
 	sf::VertexArray pixels; /// the pixels of the plot
 	int pixelSize; /// the size of the pixel
 
+	/// precompute the positions of the pixels
+	static std::vector<sf::Vector2f> pixelPositions; // static vector for positions
+	static bool positionsComputed; /// if the positions are computed
+	static void computePixelPositions();
+
 
 public:
 

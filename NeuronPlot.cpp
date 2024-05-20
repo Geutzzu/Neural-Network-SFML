@@ -3,17 +3,57 @@
 using namespace std;
 using namespace sf;
 
+
+/// static variables
+vector<Vector2f> NeuronPlot::pixelPositions;
+bool NeuronPlot::positionsComputed = false;
+
+void NeuronPlot::computePixelPositions() { /// have to pay attention at pixel size over here
+    int width = 80 / 8;
+    int height = 80 / 8;
+    for (int x = 0; x < width; x++) {
+        for (int y = 0; y < height; y++) {
+            Vector2f pos(x * 8, y * 8);
+            pixelPositions.push_back(pos);
+        }
+    }
+    positionsComputed = true;
+}
+
+
+
 NeuronPlot::NeuronPlot(Vector2f position, const double& value, NeuralNetwork& neuralNetwork, int index, int layerIndex) : position(position), value(value), network(neuralNetwork), index(index), layerIndex(layerIndex)  {
 	
+    if (!positionsComputed) {
+        computePixelPositions();
+    }
 	this->plotContainer.setSize(Vector2f(50, 50));
 	this->plotContainer.setPosition(position);
 	///this->plotContainer.setFillColor(Color::White);
 	this->plotContainer.setOutlineColor(Color::Black);
 	this->plotContainer.setOutlineThickness(1);
-	this->pixelSize = 8;
+	this->pixelSize = 8; /// has to be the same as in the static method
 	int width = 80 / this->pixelSize;
 	int height = 80 / this->pixelSize;
 	this->pixels = VertexArray(Triangles, width * height * 6);
+
+	/// computing the positions of the pixels
+    for (int x = 0; x < width; x++) {
+		for (int y = 0; y < height; y++) {
+            int i = (x + y * width) * 6; // index for this pixel
+
+			/// first triangle
+			this->pixels[i + 0].position = pixelPositions[y + x * width] + this->position;
+			this->pixels[i + 1].position = pixelPositions[y + x * width] + Vector2f(this->pixelSize, 0) + this->position;
+			this->pixels[i + 2].position = pixelPositions[y + x * width] + Vector2f(0, this->pixelSize) + this->position;
+			/// second triangle
+			this->pixels[i + 3].position = pixelPositions[y + x * width] + Vector2f(0, this->pixelSize) + this->position;
+			this->pixels[i + 4].position = pixelPositions[y + x * width] + Vector2f(this->pixelSize, 0) + this->position;
+			this->pixels[i + 5].position = pixelPositions[y + x * width] + Vector2f(this->pixelSize, this->pixelSize) + this->position;
+
+		}
+	}
+
 }
 
 
@@ -42,11 +82,14 @@ void NeuronPlot::visualizePlot(sf::RenderWindow& window, const vector<Color>& cl
             // Get the color for this pixel
             Color color = classColors[maxIndex];
 
+            int i = (x + y * width) * 6; // index for this pixel
+
+            /* /// old version - now we dont calculate the positions here
             // Calculate the position of this pixel
             Vector2f pos(x * this->pixelSize, y * this->pixelSize);
 
             // Set the position and color of each vertex
-            int i = (x + y * width) * 6; // index for this pixel
+            
             // First triangle
             this->pixels[i + 0].position = pos + this->position;
             this->pixels[i + 1].position = pos + Vector2f(this->pixelSize, 0) + this->position;
@@ -55,6 +98,8 @@ void NeuronPlot::visualizePlot(sf::RenderWindow& window, const vector<Color>& cl
             this->pixels[i + 3].position = pos + Vector2f(0, this->pixelSize) + this->position;
             this->pixels[i + 4].position = pos + Vector2f(this->pixelSize, 0) + this->position;
             this->pixels[i + 5].position = pos + Vector2f(this->pixelSize, this->pixelSize) + this->position;
+            */
+
             for (int j = 0; j < 6; j++) {
                 this->pixels[i + j].color = color;
             }
