@@ -206,6 +206,10 @@ void MainLoop::resetInputs() {
     this->epoch = 0;
     this->maxCost = 0;
 	this->costGraph.reset();
+    this->undoStack = stack<DataPoint>();
+    this->redoStack = stack<DataPoint>();
+    this->currentDataPoint = this->dataPoints.end();
+    this->network.CalculateOutputs({ 0, 0 }, this->activationType); /// we do this for the visualization
 }
 
 void MainLoop::resetTraining() {
@@ -289,7 +293,7 @@ void MainLoop::visualizePlot()
     // Draw the pixels
     this->window.draw(this->pixels);
 
-    this->network.CalculateOutputs((*this->currentDataPoint).getInputs(), this->activationType);
+    this->network.CalculateOutputs((*this->currentDataPoint).getInputs(), this->activationType); /// we do this for the visualization
 }
 
 
@@ -306,14 +310,16 @@ void MainLoop::undo() {
             }
             else {
                 this->currentDataPoint = this->dataPoints.end(); // No previous data point, set to end
-				this->dataSetEmpty = true;
+				
             }
-
         }
+        
 
         // Remove from dataPoints and circles
         this->dataPoints.erase(point);
         this->circles.erase(point);
+
+        if (this->dataPoints.empty()) this->dataSetEmpty = true; /// if the undo stack is empty the data set is empty)
 
         // Push onto redo stack
         this->redoStack.push(point);
@@ -336,6 +342,7 @@ void MainLoop::redo() {
 				pointColor = this->classColors[i];
 			}
 		}
+        
 
 		CircleShape circle(10);
 		circle.setFillColor(pointColor);
@@ -344,6 +351,11 @@ void MainLoop::redo() {
 		circle.setOutlineColor(sf::Color::White); // Set the color of the outline
 
         this->circles[point] = circle; // Assuming 'circle' is the corresponding CircleShape
+
+        if (this->dataSetEmpty)
+            this->currentDataPoint = this->dataPoints.begin(); /// we must initialize this
+
+        if (this->undoStack.empty()) this->dataSetEmpty = false; /// if the undo stack is empty the data set is not empty
 
         // Push onto undo stack
         this->undoStack.push(point);
@@ -390,6 +402,9 @@ void MainLoop::addDataPoint(Event& event) {
     this->dataSetEmpty = false;
 
 	undoStack.push(point); /// push the data point to the undo stack
+
+    /// we reset redo stack
+    this->redoStack = stack<DataPoint>();
 }
 
 
@@ -417,7 +432,7 @@ void MainLoop::eventHandler(sf::Event& event, bool& space) {
 
 	/// undo redo
 
-    if (event.type == sf::Event::KeyPressed) {
+    if (event.type == sf::Event::KeyPressed && this->gameState == GameState::InputingData) {
         if (event.key.control) {
             if (event.key.code == sf::Keyboard::Z) {
 				this->undo();
@@ -426,6 +441,7 @@ void MainLoop::eventHandler(sf::Event& event, bool& space) {
                 this->redo();
             }
         }
+        
     }
 
 
@@ -667,7 +683,7 @@ void MainLoop::run()
 
         /// neural net visualization and neural net view
         this->window.setView(this->networkView);
-        visit([&](auto&& arg) { arg.draw(this->window, this->gameState, this->dataSetEmpty, this->activationType); }, networkVisualizer);/// this visualizes the neural network
+        visit([&](auto&& arg) { arg.draw(this->window, this->gameState, this->dataSetEmpty, this->activationType); }, this->networkVisualizer);/// this visualizes the neural network
         
         if (this->highlightMode) {
 			this->previousPointButton.draw(this->window);

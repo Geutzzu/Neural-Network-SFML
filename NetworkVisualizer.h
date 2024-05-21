@@ -6,6 +6,7 @@
 #include "Button.h"
 #include "TextureManager.h"
 #include "NeuronPlot.h"
+#include <stack>
 
 enum class GameState {
     InputingData,

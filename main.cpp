@@ -57,6 +57,7 @@ int main() {
 	MainLoop* mainLoop = MainLoop::getInstance();
 	mainLoop->run();
 	
+	Texture texture;
 	
 
 
