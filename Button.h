@@ -21,8 +21,9 @@ protected:
     function<void()> onClick;
 	sf::Font font;
     sf::Text buttonText;
-	bool visible = false;
+	bool visible;
 	TextureManager* textureManager;
+	bool wasPressed;
 
 
 public:
@@ -49,10 +50,11 @@ public:
     
 
     void setVisible(bool visible) { this->visible = visible;  }
-	bool getVisible() const { return visible; }
+	bool getVisible() const { return this->visible; }
     bool getIsHovered(RenderWindow& window) const;
-	void setFillColorDropdown(sf::Color color) { normalColor = color; RectangleShape::setFillColor(color); }
+	void setFillColorDropdown(sf::Color color) { this->normalColor = color; RectangleShape::setFillColor(color); }
 	bool getIsClicked(RenderWindow& window, Event& event) const;
+	bool getWasPressed() const { return this->wasPressed; }
 
     function<void()> getOnClickFunction() const { return onClick; }
 

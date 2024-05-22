@@ -10,6 +10,7 @@ void Slider::initializeVariables(float x, float y, float width, float height, do
     this->name = name;
     this->minValue = minValue;
     this->maxValue = maxValue;
+	this->previousValue = value;
 
     track.setPosition(x, y);
     track.setSize(sf::Vector2f(width, height));
@@ -79,15 +80,23 @@ void Slider::handleEvent(const sf::Event& event) {
             newX = std::min(newX, track.getPosition().x + track.getSize().x - handle.getSize().x);
             handle.setPosition(newX, handle.getPosition().y);
 
+			/// modify the value based on the position of the handle
+            this->value = minValue + ((newX - track.getPosition().x) / (track.getSize().x - handle.getSize().x)) * (maxValue - minValue);
 
-            value = minValue + ((newX - track.getPosition().x) / (track.getSize().x - handle.getSize().x)) * (maxValue - minValue);
-            std::stringstream ss;
-            ss << std::fixed << std::setprecision(2) << value;
-            text.setString(name + ": " + ss.str());
+			if (this->previousValue != value) {
+                
+                std::stringstream ss;
+                ss << std::fixed << std::setprecision(2) << value;
+                text.setString(name + ": " + ss.str());
 
-            // Update the position of the text
-            float textX = track.getPosition().x + track.getSize().x / 2 - text.getLocalBounds().width / 2;
-            text.setPosition(int(textX), int(text.getPosition().y));
+                // Update the position of the text
+                float textX = track.getPosition().x + track.getSize().x / 2 - text.getLocalBounds().width / 2;
+                text.setPosition(int(textX), int(text.getPosition().y));
+
+				this->previousValue = value; /// so we update the text only when the value changes
+            }
+
+ 
         }
     }
 }

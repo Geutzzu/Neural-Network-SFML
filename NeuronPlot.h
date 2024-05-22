@@ -29,7 +29,7 @@ public:
 	NeuronPlot& operator=(NeuronPlot& neuronPlot) = delete; /// we don't want to have the assignment operator becouse we have references
 
 
-
+	void visualizePlotDiscretized(sf::RenderWindow& window, const vector<Color>& colors, const ActivationType& activation); /// we visualize the plot
 	void visualizePlot(sf::RenderWindow& window, const vector<Color>& colors, const ActivationType& activation); /// we visualize the plot
 	void draw(sf::RenderWindow& window, const vector<Color>& colors); /// to remember that the draw function for this class has a different signature
 

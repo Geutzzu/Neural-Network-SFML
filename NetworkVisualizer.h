@@ -41,10 +41,10 @@ public:
 
     /// add or remove layer
     void initializeInputNeurons();
-	void drawInputNeurons(sf::RenderWindow& window, double minActivation, double maxActivation, const ActivationType& activation);
+	void drawInputNeurons(sf::RenderWindow& window, double minActivation, double maxActivation, const ActivationType& activation, bool discretized);
     void initializeValues(sf::Vector2f position);
-    void draw(sf::RenderWindow& window, GameState gameState, bool dataSetEmpty, const ActivationType& activation);
-	void checkEvents(sf::RenderWindow& window, sf::Event event, sf::View& view);
+    void draw(sf::RenderWindow& window, GameState gameState, bool dataSetEmpty, const ActivationType& activation, bool discretized);
+	void checkEvents(sf::RenderWindow& window, sf::Event event, sf::View& view, stack<DataPoint>& undoStack, stack<DataPoint>& redoStack);
 	
 
 	void setPosition(sf::Vector2f position) { this->position = position; }
@@ -129,18 +129,18 @@ NetworkVisualizer<T>& NetworkVisualizer<T>::operator=(const NetworkVisualizer& n
 }
 
 template <typename T>
-void NetworkVisualizer<T>::drawInputNeurons(sf::RenderWindow& window, double minActivation, double maxActivation, const ActivationType& activation) {
+void NetworkVisualizer<T>::drawInputNeurons(sf::RenderWindow& window, double minActivation, double maxActivation, const ActivationType& activation, bool discretized) {
     for (int i = 0; i < this->inputNeurons.size(); i++) {
         this->inputNeurons[i].draw(window, minActivation, maxActivation);
     }
 }
 
 template <>
-void NetworkVisualizer<NeuronPlot>::drawInputNeurons(sf::RenderWindow& window, double minActivation, double maxActivation, const ActivationType& activation);
+void NetworkVisualizer<NeuronPlot>::drawInputNeurons(sf::RenderWindow& window, double minActivation, double maxActivation, const ActivationType& activation, bool discretized);
 
 
 template <typename T>
-void NetworkVisualizer<T>::draw(sf::RenderWindow& window, GameState gameState, bool dataSetEmpty, const ActivationType& activation) {
+void NetworkVisualizer<T>::draw(sf::RenderWindow& window, GameState gameState, bool dataSetEmpty, const ActivationType& activation, bool discretized) {
     const std::vector<double>& activations = this->network.GetLayer(0).GetLayerData().GetActivations();
     double minActivation = *std::min_element(activations.begin(), activations.end());
     double maxActivation = *std::max_element(activations.begin(), activations.end());
@@ -162,10 +162,10 @@ void NetworkVisualizer<T>::draw(sf::RenderWindow& window, GameState gameState, b
 
 
     for (int i = 0; i < this->layers.size(); i++) {
-        this->layers[i].drawNeurons(window, this->classColors, activation);
+        this->layers[i].drawNeurons(window, this->classColors, activation, discretized);
     }
 	
-    this->drawInputNeurons(window, minActivation, maxActivation, activation);
+    this->drawInputNeurons(window, minActivation, maxActivation, activation, discretized);
     
     if (gameState == GameState::InputingData) {
         for (int i = 0; i < this->layers.size(); i++) {
@@ -248,9 +248,6 @@ void NetworkVisualizer<T>::addNeuron(int layerIndex) {
 template <typename T>
 void NetworkVisualizer<T>::removeNeuron(int layerIndex) {
     try {
-
-        
-
         // Create a list of layer sizes for the new NeuralNetwork
         std::vector<int> layerSizes;
 
@@ -350,7 +347,7 @@ void NetworkVisualizer<T>::removeLayer() {
 
 
 template <typename T>
-void NetworkVisualizer<T>::checkEvents(sf::RenderWindow& window, sf::Event event, sf::View& view) {
+void NetworkVisualizer<T>::checkEvents(sf::RenderWindow& window, sf::Event event, sf::View& view, stack<DataPoint>& undoStack, stack<DataPoint>& redoStack) {
     // Convert the mouse position from pixel to world coordinates
     sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
     sf::Vector2f worldPos = window.mapPixelToCoords(pixelPos, view);
@@ -367,6 +364,11 @@ void NetworkVisualizer<T>::checkEvents(sf::RenderWindow& window, sf::Event event
 			if (this->addOrRemoveNeuron[i].first.getVisible()) {
 				this->addOrRemoveNeuron[i].first.checkEvents(window, worldEvent);
 				this->addOrRemoveNeuron[i].second.checkEvents(window, worldEvent);
+				/// we check if we have to reset the undo redo stack
+				if ((this->addOrRemoveNeuron[i].first.getWasPressed() || this->addOrRemoveNeuron[i].second.getWasPressed()) && i == this->addOrRemoveNeuron.size() - 1) {
+					undoStack = stack<DataPoint>();
+					redoStack = stack<DataPoint>();
+				}
 			}
         }
         if (this->addOrRemoveLayer.first.getVisible()) {

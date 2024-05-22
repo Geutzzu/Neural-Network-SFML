@@ -13,6 +13,7 @@
 #include "NeuronPlot.h"
 #include <variant>
 #include <any>
+#include "ThreadPool.h"
 
 
 class MainLoop {
@@ -79,6 +80,8 @@ private:
 	bool visualizeMode;
 	VertexArray pixels;
 	int pixelSize;
+	bool isVisualizing;
+	bool isDiscretized;
 
 	/// highlighting
 	CircleShape highlight;
@@ -93,6 +96,8 @@ private:
 	stack<DataPoint> redoStack;
 	CircleShape dataCircle;
 
+	/// thread pool
+	ThreadPool threadPool;
 
 	MainLoop();
 	~MainLoop() = default;
@@ -118,6 +123,7 @@ public:
 	void updateNumberOfClasses();
 	void drawRightHalfScreen();
 	void visualizePlot();
+	void visualizePlotDiscretized();
 	void eventHandler(sf::Event& event, bool& space); /// to change the bool space
 	void zoomHandler();
 	void trainingState();
@@ -137,6 +143,9 @@ public:
 	double calculateStdDevX();
 	double calculateStdDevY();
 
+	/// rgb to hsv
+	void rgbToHsv(int r, int g, int b, double* h, double* s, double* v);
+	void hsvToRgb(double h, double s, double v, int* r, int* g, int* b);
 
 	/// main loop
 	void run();

@@ -7,6 +7,8 @@
 using namespace std;
 using namespace sf;
 
+#define M_PI 3.14159265358979323846
+
 MainLoop* MainLoop::getInstance() {
 	static MainLoop instance;
 	return &instance;
@@ -31,19 +33,19 @@ void MainLoop::initializeCostDropdown() {
 }
 
 
-MainLoop::MainLoop() : window(sf::VideoMode(1920, 1080), "Neural Network"), network({ 2, 3, 2 }), networkVisualizer(NetworkVisualizer<Neuron>(network, Vector2f(450, 350), this->classColors)), textureManager(TextureManager::getInstance()), gameState(GameState::InputingData), learningRate(0.1), momentum(0.9),  learningRateSlider(750, 40, 200, 15, this->learningRate, "Learning Rate", 0, 3),
+MainLoop::MainLoop() : window(sf::VideoMode(1920, 1080), "Neural Network"), network({ 2, 3, 2 }), networkVisualizer(NetworkVisualizer<Neuron>(network, Vector2f(450, 350), this->classColors)), textureManager(TextureManager::getInstance()), gameState(GameState::InputingData), learningRate(0.1), momentum(0.9),  learningRateSlider(750, 40, 200, 15, this->learningRate, "Learning Rate", 0, 2),
     normalButtonHeight(40), normalButtonWidth(135),
     momentumSlider(750, 100, 200, 15, this->momentum, "Momentum", 0, 1),
     classDropdown(20, 840, 200, 50, Color(50, 50, 50), Color(105, 105, 105), Color(25, 25, 25), TextureManager::getInstance()->getFont("roboto"), ""),
-    activationDropdown(590, 20, this->normalButtonWidth, this->normalButtonHeight, Color(128, 128, 128), Color(160, 160, 160), Color::Transparent, TextureManager::getInstance()->getFont("roboto"), "ReLU", true),
-    costDropdown(430, 20, this->normalButtonWidth, this->normalButtonHeight, Color(128, 128, 128), Color(160, 160, 160), Color::Transparent, TextureManager::getInstance()->getFont("roboto"), "MSE", true),
-    costGraph(200, 25, 200, 50) { 
-	this->window.setFramerateLimit(500);
+    activationDropdown(590, 20, this->normalButtonWidth, this->normalButtonHeight, Color(128, 128, 128), Color(160, 160, 160), Color::Transparent, TextureManager::getInstance()->getFont("roboto"), "Sigmoid", true),
+    costDropdown(430, 20, this->normalButtonWidth, this->normalButtonHeight, Color(128, 128, 128), Color(160, 160, 160), Color::Transparent, TextureManager::getInstance()->getFont("roboto"), "Cross Entropy", true),
+	costGraph(200, 25, 200, 50), threadPool(8) { 
+	this->window.setFramerateLimit(1500);
 	this->circles = map<DataPoint, CircleShape>();
 	this->dataPoints = set<DataPoint>();
 	this->epoch = 0;
-	this->activationType = ActivationType::ReLU;
-	this->costType = CostType::MeanSquareError;
+	this->activationType = ActivationType::Sigmoid;
+	this->costType = CostType::CrossEntropy;
 	this->dataSetEmpty = true;
 	this->numberClasses = 2;
 	this->dataColor = Color(255, 0, 0);
@@ -62,17 +64,19 @@ MainLoop::MainLoop() : window(sf::VideoMode(1920, 1080), "Neural Network"), netw
 	this->graphDisplayed = true;
 	this->statsX = StandardizationCalculator();
 	this->statsY = StandardizationCalculator();
+	this->isVisualizing = false;
 
     ///clocks
 	this->dataPointClock.restart();
 
 
     /// plot visualization
-    this->pixelSize = 16;
+    this->pixelSize = 12;
     int width = this->window.getSize().x / (2 * this->pixelSize);
     int height = this->window.getSize().y / this->pixelSize;
     this->pixels = VertexArray(Triangles, width * height * 6); // 6 vertices for each pixel (2 triangles)
 	this->computePlotPositions();
+    this->isDiscretized = true;
 
 	/// class dropdown
 	this->initializeClassDropdown();
@@ -260,7 +264,70 @@ void MainLoop::computePlotPositions() {
 
 }
 
-void MainLoop::visualizePlot()
+void MainLoop::rgbToHsv(int r, int g, int b, double* h, double* s, double* v) {
+    double red = r / 255.0;
+    double green = g / 255.0;
+    double blue = b / 255.0;
+
+    double max = std::max(red, std::max(green, blue));
+    double min = std::min(red, std::min(green, blue));
+
+    *h = 0;
+    if (max != min) {
+        if (max == red) {
+            *h = 60 * (0 + (green - blue) / (max - min));
+        }
+        else if (max == green) {
+            *h = 60 * (2 + (blue - red) / (max - min));
+        }
+        else if (max == blue) {
+            *h = 60 * (4 + (red - green) / (max - min));
+        }
+    }
+
+    *h = std::fmod(*h, 360);
+    if (*h < 0) {
+        *h += 360;
+    }
+
+    *s = (max == 0) ? 0 : (max - min) / max;
+    *v = max;
+}
+
+void MainLoop::hsvToRgb(double h, double s, double v, int* r, int* g, int* b) {
+    double c = v * s;
+    double x = c * (1 - std::abs(std::fmod(h / 60.0, 2) - 1));
+    double m = v - c;
+
+    double rPrime, gPrime, bPrime;
+    if (h >= 0 && h < 60) {
+        rPrime = c, gPrime = x, bPrime = 0;
+    }
+    else if (h >= 60 && h < 120) {
+        rPrime = x, gPrime = c, bPrime = 0;
+    }
+    else if (h >= 120 && h < 180) {
+        rPrime = 0, gPrime = c, bPrime = x;
+    }
+    else if (h >= 180 && h < 240) {
+        rPrime = 0, gPrime = x, bPrime = c;
+    }
+    else if (h >= 240 && h < 300) {
+        rPrime = x, gPrime = 0, bPrime = c;
+    }
+    else {
+        rPrime = c, gPrime = 0, bPrime = x;
+    }
+
+    *r = (rPrime + m) * 255;
+    *g = (gPrime + m) * 255;
+    *b = (bPrime + m) * 255;
+}
+
+
+
+
+void MainLoop::visualizePlotDiscretized()
 {
     int width = this->window.getSize().x / (2 * pixelSize);
     int height = this->window.getSize().y / pixelSize;
@@ -295,6 +362,54 @@ void MainLoop::visualizePlot()
 
     this->network.CalculateOutputs((*this->currentDataPoint).getInputs(), this->activationType); /// we do this for the visualization
 }
+
+void MainLoop::visualizePlot()
+{
+    int width = this->window.getSize().x / (2 * pixelSize);
+    int height = this->window.getSize().y / pixelSize;
+
+    for (int x = 0; x < width; x++) {
+        for (int y = 0; y < height; y++) {
+            double input_1 = x / static_cast<double>(width);
+            double input_2 = y / static_cast<double>(height);
+            vector<double> outputs = this->network.CalculateOutputs({ input_1, input_2 }, this->activationType);
+
+            // Initialize the color in linear RGB
+            double r = 0, g = 0, b = 0;
+            double totalWeight = 0;
+
+            // Calculate the weighted sum of the colors in linear RGB
+            for (int i = 0; i < outputs.size(); i++) {
+                double r_i = this->classColors[i].r / 255.0;
+                double g_i = this->classColors[i].g / 255.0;
+                double b_i = this->classColors[i].b / 255.0;
+
+                r += outputs[i] * r_i;
+                g += outputs[i] * g_i;
+                b += outputs[i] * b_i;
+                totalWeight += outputs[i];
+            }
+
+            // Normalize the color in linear RGB
+            r = min(1.0, max(0.0, r / totalWeight)) * 255;
+            g = min(1.0, max(0.0, g / totalWeight)) * 255;
+            b = min(1.0, max(0.0, b / totalWeight)) * 255;
+
+            int i = (x + y * width) * 6; // index for this pixel
+
+            for (int j = 0; j < 6; j++) {
+                this->pixels[i + j].color = Color(static_cast<int>(r), static_cast<int>(g), static_cast<int>(b));
+            }
+        }
+    }
+
+    // Draw the pixels
+    this->window.draw(this->pixels);
+
+    this->network.CalculateOutputs((*this->currentDataPoint).getInputs(), this->activationType); /// we do this for the visualization
+}
+
+
 
 
 void MainLoop::undo() {
@@ -409,7 +524,7 @@ void MainLoop::addDataPoint(Event& event) {
 
 
 void MainLoop::holdForDataPoint() {
-    if (isAddingDataPoints && sf::Mouse::isButtonPressed(sf::Mouse::Left) && dataPointClock.getElapsedTime().asMilliseconds() > 100) {
+    if (this->isAddingDataPoints && sf::Mouse::isButtonPressed(sf::Mouse::Left) && dataPointClock.getElapsedTime().asMilliseconds() > 50) {
         // Create a new event with the current mouse position
         sf::Event newEvent;
         newEvent.type = sf::Event::MouseButtonPressed;
@@ -470,7 +585,7 @@ void MainLoop::eventHandler(sf::Event& event, bool& space) {
 
 
 	/// this->networkVisualizer.checkEvents(this->window, event, this->networkView); - before varaint
-	visit([&](auto&& arg) { arg.checkEvents(this->window, event, this->networkView); }, networkVisualizer); /// after variant
+	visit([&](auto&& arg) { arg.checkEvents(this->window, event, this->networkView, this->undoStack, this->redoStack); }, networkVisualizer); /// after variant
 
 
 	this->learningRateSlider.handleEvent(event);
@@ -499,7 +614,15 @@ void MainLoop::eventHandler(sf::Event& event, bool& space) {
         }
     }
 
+    /// visualization
+	if (event.type == Event::KeyPressed && event.key.code == Keyboard::Space) {
+		this->isVisualizing = !this->isVisualizing;
+	}
 
+	/// switch between discretized and non discretized with d
+    if (event.type == Event::KeyPressed && event.key.code == Keyboard::D) {
+		this->isDiscretized = !this->isDiscretized;
+    }
 
     if (event.type == sf::Event::MouseWheelScrolled)
     {
@@ -563,27 +686,28 @@ void MainLoop::zoomHandler() {
 
 
 void MainLoop::trainingState() {
+    // Add a task to the ThreadPool
+        this->epoch++;
 
-    this->epoch++;
-    
-    /// we will update the gradient for a specific dta point last for visualization purposes - should not affect performance by much
-    for (auto it = this->dataPoints.begin(); it != this->dataPoints.end(); ++it) {
-        const auto& dataPoint = *it;
+        // Update the gradient for each data point
+        for (auto it = this->dataPoints.begin(); it != this->dataPoints.end(); ++it) {
+            const auto& dataPoint = *it;
 
-        if (it == this->currentDataPoint)
-            continue;
+            if (it == this->currentDataPoint)
+                continue;
 
-        this->network.UpdateGradientsForDataPoint(dataPoint, this->activationType, this->costType); /// update the gradients for the data point
+            this->network.UpdateGradientsForDataPoint(dataPoint, this->activationType, this->costType);
+        }
+        this->network.UpdateGradientsForDataPoint(*this->currentDataPoint, this->activationType, this->costType);
+        this->network.ApplyAllGradients(this->learningRate / this->dataPoints.size(), this->momentum);
+
+    // Continue with visualization on the main thread
+    if (this->isVisualizing) {
+        if (this->isDiscretized)
+            this->visualizePlotDiscretized();
+        else
+            this->visualizePlot();
     }
-    this->network.UpdateGradientsForDataPoint(*this->currentDataPoint, this->activationType, this->costType); /// update the gradients for the current data point
-
-	this->network.ApplyAllGradients(this->learningRate / this->dataPoints.size(), this->momentum); /// apply the gradients to the weights and biases - 0.9 is for the momentum
-
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-    {
-        this->visualizePlot();
-    }
-
 }
 
 
@@ -616,13 +740,12 @@ void MainLoop::run()
 
     Text costFunctionText;
 	Text epochText;
-    Font font;
-    font = this->textureManager->getFont("roboto");
-    costFunctionText.setFont(font);
+
+    costFunctionText.setFont(this->textureManager->getFont("roboto"));
     costFunctionText.setPosition(10, 15);
     costFunctionText.setCharacterSize(22);
     costFunctionText.setFillColor(sf::Color::White);
-	epochText.setFont(font);
+	epochText.setFont(this->textureManager->getFont("roboto"));
 	epochText.setPosition(10, 45);
 	epochText.setCharacterSize(22);
 	epochText.setFillColor(sf::Color::White);
@@ -683,7 +806,7 @@ void MainLoop::run()
 
         /// neural net visualization and neural net view
         this->window.setView(this->networkView);
-        visit([&](auto&& arg) { arg.draw(this->window, this->gameState, this->dataSetEmpty, this->activationType); }, this->networkVisualizer);/// this visualizes the neural network
+        visit([&](auto&& arg) { arg.draw(this->window, this->gameState, this->dataSetEmpty, this->activationType, this->isDiscretized); }, this->networkVisualizer);/// this visualizes the neural network
         
         if (this->highlightMode) {
 			this->previousPointButton.draw(this->window);

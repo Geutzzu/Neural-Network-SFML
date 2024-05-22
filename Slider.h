@@ -12,6 +12,7 @@ private:
     sf::Text text;
     std::string name;
     double& value; // reference to the value of the slider
+	double previousValue; /// so we dont update the text every frame
     double minValue; // minimum value of the slider
     double maxValue; // maximum value of the slider
     bool isDragging;

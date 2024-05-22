@@ -23,6 +23,9 @@ void Button::init(int x, int y, float width, float height, Color color, Color ho
 	this->hoverColor = hoverColor;
 	this->onClick = onClickFunction;
 	this->textureManager = TextureManager::getInstance();
+	this->visible = true;
+	this->wasPressed = false;
+
 
 	this->buttonText.setPosition(int(x), int(y));
 	this->font = font;
@@ -71,14 +74,16 @@ Button& Button::operator=(const Button& button) {
 	return *this;
 }
 
-void Button::checkEvents(RenderWindow& window, Event& event) {
+void Button::checkEvents(RenderWindow& window, Event& event) { /// this handles the event when the button is clicked
     Vector2i mousePos = Vector2i(event.mouseButton.x, event.mouseButton.y);
 
+	this->wasPressed = false;
 
     if (this->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
         this->setFillColor(hoverColor);
         if (event.type == Event::MouseButtonReleased) {
             onClick();
+			this->wasPressed = true;
         }
     }
     else {
@@ -87,13 +92,16 @@ void Button::checkEvents(RenderWindow& window, Event& event) {
 	
 }
 
-void Button::checkEvents(RenderWindow& window) {
+void Button::checkEvents(RenderWindow& window) { /// this does not take the event as a parameter - we need for views to also have the event 
 	Vector2i mousePos = Mouse::getPosition(window);
+
+	this->wasPressed = false;
 
 	if (this->getGlobalBounds().contains(mousePos.x, mousePos.y)) {
 		this->setFillColor(hoverColor);
 		if (Mouse::isButtonPressed(Mouse::Left)) {
 			onClick();
+			this->wasPressed = true;
 		}
 	}
 	else {

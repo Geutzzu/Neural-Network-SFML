@@ -13,8 +13,13 @@ void NetworkVisualizer<NeuronPlot>::initializeInputNeurons() {
 }
 
 template<>
-void NetworkVisualizer<NeuronPlot>::drawInputNeurons(sf::RenderWindow& window, double minActivation, double maxActivation, const ActivationType& activation) {
+void NetworkVisualizer<NeuronPlot>::drawInputNeurons(sf::RenderWindow& window, double minActivation, double maxActivation, const ActivationType& activation, bool discretize) {
     for (int i = 0; i < this->inputNeurons.size(); i++) {
-        this->inputNeurons[i].visualizePlot(window, this->classColors, activation);
+		if (discretize) {
+			this->inputNeurons[i].visualizePlotDiscretized(window, this->classColors, activation);
+		}
+        else {
+			this->inputNeurons[i].visualizePlot(window, this->classColors, activation);
+		}
     }
 }
