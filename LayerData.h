@@ -45,24 +45,24 @@ public:
 
 	LayerData(const vector<double>& inputs, const vector<double>& activations, const vector<double>& weightedInputs);
 
-	const vector<double>& GetInputs() const { return this->inputs; }
-	const vector<double>& GetActivations() const { return this->activations; }
-	const vector<double>& GetWeightedInputs() const { return this->weightedInputs; }
+	const vector<double>& getInputs() const { return this->inputs; }
+	const vector<double>& getActivations() const { return this->activations; }
+	const vector<double>& getWeightedInputs() const { return this->weightedInputs; }
 
-	void SetInputs(const vector<double>& inputs) { this->inputs = inputs; }
-	void SetActivations(const vector<double>& activations) { this->activations = activations; }
-	void SetWeightedInputs(const vector<double>& weightedInputs) { this->weightedInputs = weightedInputs; }
+	void setInputs(const vector<double>& inputs) { this->inputs = inputs; }
+	void setActivations(const vector<double>& activations) { this->activations = activations; }
+	void setWeightedInputs(const vector<double>& weightedInputs) { this->weightedInputs = weightedInputs; }
 
-	void SetInput(int index, double value) { this->inputs[index] = value; }
-	void SetActivation(int index, double value) { this->activations[index] = value; }
-	void SetWeightedInput(int index, double value) { this->weightedInputs[index] = value; }
+	void setInput(int index, double value) { this->inputs[index] = value; }
+	void setActivation(int index, double value) { this->activations[index] = value; }
+	void setWeightedInput(int index, double value) { this->weightedInputs[index] = value; }
 
-	const double& GetInput(int index) const { return this->inputs[index]; }
-	const double& GetActivation (int index) const { return this->activations[index]; }
-	const double& GetWeightedInput(int index) const { return this->weightedInputs[index]; }
+	const double& getInput(int index) const { return this->inputs[index]; }
+	const double& getActivation (int index) const { return this->activations[index]; }
+	const double& getWeightedInput(int index) const { return this->weightedInputs[index]; }
 
-	int GetNumberInputs() const { return this->inputs.size(); }
-	int GetNumberOutputs() const { return this->activations.size(); }
+	int getNumberInputs() const { return this->inputs.size(); }
+	int getNumberOutputs() const { return this->activations.size(); }
 };
 
 

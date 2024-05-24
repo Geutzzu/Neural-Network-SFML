@@ -22,8 +22,8 @@ public:
 
 template <typename T>
 LayerVisualizer<T>::LayerVisualizer(const Layer& layer, sf::Vector2f position, NeuralNetwork& network) : layer(layer), position(position), network(network) {
-    for (int i = 0; i < this->layer.GetNumberOutputs(); i++) {
-        T neuron(position + sf::Vector2f(0, i * 100), this->layer.GetLayerData().GetActivation(i));
+    for (int i = 0; i < this->layer.getNumberOutputs(); i++) {
+        T neuron(position + sf::Vector2f(0, i * 100), this->layer.getLayerData().getActivation(i));
         this->neurons.push_back(neuron);
     }
 }
@@ -42,7 +42,7 @@ void LayerVisualizer<T>::drawNeurons(sf::RenderWindow& window, const vector<Colo
 
     /// find the minimum activation and the maximum activation
 
-    const std::vector<double>& activations = this->layer.GetLayerData().GetActivations();
+    const std::vector<double>& activations = this->layer.getLayerData().getActivations();
     double minActivation = *std::min_element(activations.begin(), activations.end());
     double maxActivation = *std::max_element(activations.begin(), activations.end());
 
@@ -57,9 +57,9 @@ void LayerVisualizer<NeuronPlot>::drawNeurons(sf::RenderWindow& window, const ve
 
 template <typename T>
 void LayerVisualizer<T>::drawConnections(sf::RenderWindow& window, double minWeight, double maxWeight) {
-    int numberInputs = this->layer.GetNumberInputs();
-    int numberOutputs = this->layer.GetNumberOutputs();
-    const vector<double>& weights = this->layer.GetWeights();
+    int numberInputs = this->layer.getNumberInputs();
+    int numberOutputs = this->layer.getNumberOutputs();
+    const vector<double>& weights = this->layer.getWeights();
 
     Vector2f offset = Vector2f(-280, -40); /// offset for the connections
 

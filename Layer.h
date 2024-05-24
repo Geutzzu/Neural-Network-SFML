@@ -49,31 +49,28 @@ public:
 
 	Layer(int numberInputs, int numberOutputs);
 
-	void InitializeWeightsAndBiases(); /// initialize the weights and biases of the layer
+	void initializeWeightsAndBiases(); /// initialize the weights and biases of the layer
 
-	vector<double> CalculateOutputs(const vector<double>& inputs, const ActivationType& activationType);
-	void UpdateGradients(const vector<double>& specificValues);
-	void ApplyGradients(double learningRate, double momentum);
+	vector<double> calculateOutputs(const vector<double>& inputs, const ActivationType& activationType);
+	void updateGradients(const vector<double>& specificValues);
+	void applyGradients(double learningRate, double momentum);
 	/// vector<double> CalculateOutputs(const vector<double>& inputs);
 
-	double GetWeight(int inputIndex, int outputIndex) const { return this->weights[inputIndex + outputIndex * this->numberInputs]; }
-	double GetBias(int outputIndex) const { return this->biases[outputIndex]; }
+	double getWeight(int inputIndex, int outputIndex) const { return this->weights[inputIndex + outputIndex * this->numberInputs]; }
+	double getBias(int outputIndex) const { return this->biases[outputIndex]; }
 
-	void SetWeight(int inputIndex, int outputIndex, double value) { this->weights[inputIndex + outputIndex * this->numberInputs] = value; }
-	void SetBias(int outputIndex, double value) { this->biases[outputIndex] = value; }
+	void setWeight(int inputIndex, int outputIndex, double value) { this->weights[inputIndex + outputIndex * this->numberInputs] = value; }
+	void setBias(int outputIndex, double value) { this->biases[outputIndex] = value; }
 
 	/// geter for reference (ruins encapsulation)
-	double& GetWeightRef(int inputIndex, int outputIndex) { return this->weights[inputIndex + outputIndex * this->numberInputs]; }
-	double& GetBiasRef(int outputIndex) { return this->biases[outputIndex]; }
+	double& getWeightRef(int inputIndex, int outputIndex) { return this->weights[inputIndex + outputIndex * this->numberInputs]; }
+	double& getBiasRef(int outputIndex) { return this->biases[outputIndex]; }
 
-	const vector <double>& GetWeights() const { return this->weights; }
-	const vector <double>& GetBiases() const { return this->biases; }
+	const vector <double>& getWeights() const { return this->weights; }
+	const vector <double>& getBiases() const { return this->biases; }
 
-	const LayerData& GetLayerData() const { return this->layerData; }
-	const int GetNumberInputs() const { return this->numberInputs; }
-	const int GetNumberOutputs() const { return this->numberOutputs; }
-	const double GetOutput(int index) const { return this->layerData.GetActivation(index); }
-
-
-
+	const LayerData& getLayerData() const { return this->layerData; }
+	const int getNumberInputs() const { return this->numberInputs; }
+	const int getNumberOutputs() const { return this->numberOutputs; }
+	const double getOutput(int index) const { return this->layerData.getActivation(index); }
 };

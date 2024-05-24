@@ -72,8 +72,7 @@ void NeuronPlot::visualizePlotDiscretized(sf::RenderWindow& window, const vector
         for (int y = 0; y < height; y++) {
             double input_1 = x / static_cast<double>(width);
             double input_2 = y / static_cast<double>(height);
-            vector<double> outputs = this->network.CalculateNeuronOutputs({ input_1, input_2 }, this->layerIndex, this->index, activation);
-
+            vector<double> outputs = this->network.calculateNeuronOutputsDiscretized({ input_1, input_2 }, this->layerIndex, this->index, activation);
 
             // Find the index of the maximum output
             int maxIndex = max_element(outputs.begin(), outputs.end()) - outputs.begin();
@@ -88,8 +87,8 @@ void NeuronPlot::visualizePlotDiscretized(sf::RenderWindow& window, const vector
 
             int i = (x + y * width) * 6; // index for this pixel
 
-            for (int j = 0; j < 6; j++) {
-                this->pixels[i + j].color = color;
+			for (int j = 0; j < 6; j++) { /// setting the color for the pixel - we have 6 vertices for each pixel
+				this->pixels[i + j].color = color; /// setting the color
             }
         }
     }
@@ -100,14 +99,14 @@ void NeuronPlot::visualizePlotDiscretized(sf::RenderWindow& window, const vector
 	
 }
 
-void NeuronPlot::visualizePlot(sf::RenderWindow& window, const vector<Color>& classColors, const ActivationType& activation) {
+void NeuronPlot::visualizePlot(RenderWindow& window, const vector<Color>& classColors, const ActivationType& activation) {
     int width = 80 / this->pixelSize;
     int height = 80 / this->pixelSize;
     for (int x = 0; x < width; x++) {
         for (int y = 0; y < height; y++) {
             double input_1 = x / static_cast<double>(width);
             double input_2 = y / static_cast<double>(height);
-            vector<double> outputs = this->network.CalculateNeuronOutputs({ input_1, input_2 }, this->layerIndex, this->index, activation);
+            vector<double> outputs = this->network.calculateNeuronOutputs({ input_1, input_2 }, this->layerIndex, this->index, activation);
 
             // Initialize the color in linear RGB
             double r = 0, g = 0, b = 0;

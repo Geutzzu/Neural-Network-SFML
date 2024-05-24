@@ -6,8 +6,8 @@
 
 template<>
 void NetworkVisualizer<NeuronPlot>::initializeInputNeurons() {
-    for (int i = 0; i < this->network.GetLayer(0).GetNumberInputs(); i++) {
-        NeuronPlot neuron(this->position + sf::Vector2f(-320, i * 100), this->network.GetLayer(0).GetLayerData().GetInput(i), this->network, i, -1); /// !
+    for (int i = 0; i < this->network.getLayer(0).getNumberInputs(); i++) {
+        NeuronPlot neuron(this->position + sf::Vector2f(-320, i * 100), this->network.getLayer(0).getLayerData().getInput(i), this->network, i, -1); /// !
         inputNeurons.push_back(neuron);
     }
 }

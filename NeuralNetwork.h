@@ -35,48 +35,48 @@ private:
 public:
 	NeuralNetwork(const vector<int>& layerSizes);
 
-	void InitializeWeightsAndBiases(); /// initialize the weights and biases of the neural network
+	void initializeWeightsAndBiases(); /// initialize the weights and biases of the neural network
 
-	vector<double> CalculateOutputs(const vector<double>& inputs, const ActivationType& activation);
+	vector<double> calculateOutputs(const vector<double>& inputs, const ActivationType& activation);
 
-	vector<double> CalculateNeuronOutputs(const vector<double>& inputs, int specificLayer, int activeNeuron, const ActivationType& activation); /// for neuron plots
+	vector<double> calculateNeuronOutputs(const vector<double>& inputs, int specificLayer, int activeNeuron, const ActivationType& activation); /// for neuron plots
 
-	int Classify(const vector<double>& inputs, const ActivationType& activation);
+	vector<double> calculateNeuronOutputsDiscretized(const vector<double>& inputs, int specificLayer, int activeNeuron, const ActivationType& activation);
 
-	double CostFunction(const DataPoint& dataPoint, const ActivationType& activation, const CostType& costType); /// calculate the cost of the data point
+	int classify(const vector<double>& inputs, const ActivationType& activation);
 
-	double CostFunction(const set<DataPoint>& dataPoints, const ActivationType& activation, const CostType& costType); /// calculate the cost of the data points
+	double costFunction(const DataPoint& dataPoint, const ActivationType& activation, const CostType& costType); /// calculate the cost of the data point
 
-	void UpdateGradientsForDataPoint(const DataPoint& dataPoint, const ActivationType& activationType, const CostType& costType);
+	double costFunction(const set<DataPoint>& dataPoints, const ActivationType& activation, const CostType& costType); /// calculate the cost of the data points
 
-
-	vector <double> CalculateOutputSpecificValues(const vector<double>& expectedOutputs, const ActivationType& activationType, const CostType& costType); /// we need the expected outputs to calculate the specific values for backpropagation
-
-	vector <double> CalculateHiddenLayerOutputSpecificValues(const vector<double>& oldSpecificValues, int oldIndex, const ActivationType& activationType, const CostType& costType); /// we need the old specific values to calculate the new specific values
-
-	void Learn(vector<DataPoint> trainingBatch, double learningRate, double momentum); /// learn from a batch of data points
-
-	void ApplyAllGradients(double learningRate, double momentum); /// apply the gradients to the weights and biases
-
-	vector <DataPoint> ClassifyAll(const vector<DataPoint>& dataPoints, const ActivationType& activation); /// classify all the data points
-
-	DataPoint Classify(const DataPoint& dataPoint, const ActivationType& activation); /// classify a single data point
+	void updateGradientsForDataPoint(const DataPoint& dataPoint, const ActivationType& activationType, const CostType& costType);
 
 
+	vector<double> calculateOutputSpecificValues(const vector<double>& expectedOutputs, const ActivationType& activationType, const CostType& costType); /// we need the expected outputs to calculate the specific values for backpropagation
+
+	vector<double> calculateHiddenLayerOutputSpecificValues(const vector<double>& oldSpecificValues, int oldIndex, const ActivationType& activationType, const CostType& costType); /// we need the old specific values to calculate the new specific values
+
+	void learn(vector<DataPoint> trainingBatch, double learningRate, double momentum); /// learn from a batch of data points
+
+	void applyAllGradients(double learningRate, double momentum); /// apply the gradients to the weights and biases
+
+	vector <DataPoint> classifyAll(const vector<DataPoint>& dataPoints, const ActivationType& activation); /// classify all the data points
+
+	DataPoint classify(const DataPoint& dataPoint, const ActivationType& activation); /// classify a single data point
 
 
 
 	/// geter for reference (ruins encapsulation)
 	/// Layer& GetLayerRef(int index) { return this->layers[index]; }
 
-	const LayerData& GetLayerData(int index) const;
+	const LayerData& getLayerData(int index) const;
 
-	const Layer& GetLayer(int index) const;
+	const Layer& getLayer(int index) const;
 
-	const vector<Layer>& GetLayers() const;
+	const vector<Layer>& getLayers() const;
 
-	int GetNumberLayers() const;
+	int getNumberLayers() const;
 
-	int GetLayerIndex(const Layer& layer) const;
+	int getLayerIndex(const Layer& layer) const;
 
 };

@@ -44,47 +44,6 @@ public:
 		this->outputs = outputs; /// set the output
 	}
 
-    std::set<DataPoint> GenerateDataPoints(int numPoints) {
-        std::set<DataPoint> dataPoints;
-
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_real_distribution<> dis(0.0, 1.0);
-
-        for (int i = 0; i < numPoints; ++i) {
-            double x = dis(gen);
-            double y = dis(gen);
-            DataPoint dp;
-            dp.SetInputs({ x, y });
-            // Label points above the line y = x as {1, 0}, and points below the line as {0, 1}
-            dp.SetOutputs((y > x) ? std::vector<double>{1, 0} : std::vector<double>{ 0, 1 });
-            dataPoints.insert(dp);
-        }
-
-        return dataPoints;
-    }
-
-    std::set<DataPoint> GenerateDataPointsPixel(int numPoints) {
-        std::set<DataPoint> dataPoints;
-
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_real_distribution<> disX(640, 1280);
-        std::uniform_real_distribution<> disY(0, 720);
-
-        for (int i = 0; i < numPoints; ++i) {
-            double x = disX(gen);
-            double y = disY(gen);
-            DataPoint dp;
-            dp.SetInputs({ x, y });
-            // Label points above the line y = x as {1, 0}, and points below the line as {0, 1}
-            dp.SetOutputs((y + 640 > x) ? std::vector<double>{1, 0} : std::vector<double>{ 0, 1 });
-            dataPoints.insert(dp);
-        }
-
-        return dataPoints;
-    }
-
 	const vector<double>& GetInputs() const /// geter for the inputs
 	{
 		return this->inputs;

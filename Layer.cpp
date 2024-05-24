@@ -42,7 +42,7 @@ Layer::Layer(int numberInputs, int numberOutputs) {
 
 }
 
-void Layer::InitializeWeightsAndBiases() {
+void Layer::initializeWeightsAndBiases() {
 	/// Xavier initialization of the weights and biases
 	double variance = 2.0 / (double)this->numberInputs;
 	double standardDeviation = sqrt(variance);
@@ -94,32 +94,32 @@ void Layer::InitializeWeightsAndBiases() {
 	return weightedInputs; /// return the outputs
 }*/
 
-vector<double> Layer::CalculateOutputs(const vector<double>& inputs, const ActivationType& activationType) {
-	this->layerData.SetInputs(inputs); /// set the inputs of the layer data
+vector<double> Layer::calculateOutputs(const vector<double>& inputs, const ActivationType& activationType) {
+	this->layerData.setInputs(inputs); /// set the inputs of the layer data
 	for (int i = 0; i < this->numberOutputs; i++) { /// for each output
 		double weightedInput = this->biases[i]; /// initialize the output to the bias
 		for (int j = 0; j < this->numberInputs; j++) { /// for each input
-			weightedInput += inputs[j] * GetWeight(j, i); /// add the input * weight to the output
+			weightedInput += inputs[j] * getWeight(j, i); /// add the input * weight to the output
 		}
-		this->layerData.SetWeightedInput(i, weightedInput); /// set the output to the output
+		this->layerData.setWeightedInput(i, weightedInput); /// set the output to the output
 	}
 	Activation function(activationType); /// initialize the activation function
 	for (int i = 0; i < this->numberOutputs; i++) { /// for each output
-		this->layerData.SetActivation(i, function.Activate(this->layerData.GetWeightedInputs(), i)); /// activate the output
+		this->layerData.setActivation(i, function.Activate(this->layerData.getWeightedInputs(), i)); /// activate the output
 	}
 
-	return this->layerData.GetActivations(); /// return the outputs
+	return this->layerData.getActivations(); /// return the outputs
 }
 
 
-void Layer::UpdateGradients(const vector<double>& specificValues) {
+void Layer::updateGradients(const vector<double>& specificValues) {
 
 	double partialDerivative = 0;
 
 	for (int i = 0; i < this->numberOutputs; i++) {
 		for (int j = 0; j < this->numberInputs; j++) {
 			///partial derivative of the cost function with respect to the weight
-			partialDerivative = specificValues[i] * this->layerData.GetInput(j); /// the specific value * the input
+			partialDerivative = specificValues[i] * this->layerData.getInput(j); /// the specific value * the input
 			this->costGradientWeights[j + i * this->numberInputs] += partialDerivative; /// add the partial derivative to the gradient
 		}
 		partialDerivative = specificValues[i] * 1.0; /// the specific value
@@ -128,7 +128,7 @@ void Layer::UpdateGradients(const vector<double>& specificValues) {
 }
 
 
-void Layer::ApplyGradients(double learningRate, double momentum) {
+void Layer::applyGradients(double learningRate, double momentum) {
 	for (int i = 0; i < this->numberOutputs; i++) {
 		for (int j = 0; j < this->numberInputs; j++) {
 			double deltaWeight = learningRate * this->costGradientWeights[j + i * this->numberInputs] + momentum * this->prevDeltaWeights[j + i * this->numberInputs];
