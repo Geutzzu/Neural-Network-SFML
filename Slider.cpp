@@ -25,8 +25,7 @@ void Slider::initializeVariables(float x, float y, float width, float height, do
     float handleY = y + (height - handle.getSize().y) / 2;
     handle.setPosition(handleX, handleY);
 
-    this->font = TextureManager::getInstance()->getFont("roboto");
-    text.setFont(font);
+    text.setFont(TextureManager::getInstance()->getFont("roboto"));
     text.setCharacterSize(22); // in pixels
     text.setFillColor(sf::Color::White);
     std::stringstream ss;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <fstream>
 #include "NeuralNetwork.h"
 #include "LayerVisualizer.h"
 #include "NetworkVisualizer.h"
@@ -22,7 +23,6 @@ private:
 	RenderWindow window;
 	NeuralNetwork network;
 	variant<NetworkVisualizer<Neuron>, NetworkVisualizer<NeuronPlot>> networkVisualizer;
-	TextureManager* textureManager;
 	GameState gameState;
 	set<DataPoint> dataPoints;
 	map<DataPoint, CircleShape> circles;
@@ -50,7 +50,7 @@ private:
 
 	/// buttons and sliders
 	Button resetInputsButton;
-	Button resetTrainingButton;
+	Button resetOrStartTrainingButton;
 	Slider learningRateSlider;
 	Slider momentumSlider;
 	Dropdown classDropdown;
@@ -99,6 +99,8 @@ private:
 	/// thread pool
 	ThreadPool threadPool;
 
+	
+
 	MainLoop();
 	~MainLoop() = default;
 
@@ -128,7 +130,9 @@ public:
 	void zoomHandler();
 	void trainingState();
 	void resetInputs();
-	void resetTraining();
+	void resetOrStartTraining();
+	void startTraining();
+	void stopTraining();
 	void toggleHighlight();
 	void toggleVisualize();
 	const double& getCostPercentage();
@@ -146,6 +150,10 @@ public:
 	/// rgb to hsv
 	void rgbToHsv(int r, int g, int b, double* h, double* s, double* v);
 	void hsvToRgb(double h, double s, double v, int* r, int* g, int* b);
+
+	/// read and write to file ( ctrl + s / ctrl + o )
+	void writeToFile(const string& filename);
+	void readFromFile(const string& filename);
 
 	/// main loop
 	void run();

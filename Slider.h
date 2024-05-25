@@ -8,7 +8,6 @@ class Slider {
 private:
     sf::RectangleShape track;
     sf::RectangleShape handle;
-    sf::Font font;
     sf::Text text;
     std::string name;
     double& value; // reference to the value of the slider

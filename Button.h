@@ -22,7 +22,6 @@ protected:
 	sf::Font font;
     sf::Text buttonText;
 	bool visible;
-	TextureManager* textureManager;
 	bool wasPressed;
 
 
@@ -55,6 +54,7 @@ public:
 	void setFillColorDropdown(sf::Color color) { this->normalColor = color; RectangleShape::setFillColor(color); }
 	bool getIsClicked(RenderWindow& window, Event& event) const;
 	bool getWasPressed() const { return this->wasPressed; }
+	void setString(const string& text) { this->buttonText.setString(text); }
 
     function<void()> getOnClickFunction() const { return onClick; }
 

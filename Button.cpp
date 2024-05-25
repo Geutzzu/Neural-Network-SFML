@@ -22,7 +22,6 @@ void Button::init(int x, int y, float width, float height, Color color, Color ho
 	this->normalColor = color;
 	this->hoverColor = hoverColor;
 	this->onClick = onClickFunction;
-	this->textureManager = TextureManager::getInstance();
 	this->visible = true;
 	this->wasPressed = false;
 
@@ -46,8 +45,7 @@ Button::Button(float x, float y, float width, float height, Color color, Color h
 
 Button::Button(const Button& button) : RectangleShape(button), normalColor(button.normalColor), hoverColor(button.hoverColor), onClick(button.onClick) {
 	this->buttonText = button.buttonText;
-	this->textureManager = TextureManager::getInstance();
-	this->font = textureManager->getFont("roboto");
+	this->font = TextureManager::getInstance()->getFont("roboto");
 	this->buttonText.setFont(this->font);
 	this->buttonText.setString(button.buttonText.getString());
 	this->buttonText.setCharacterSize(20);
@@ -62,8 +60,7 @@ Button& Button::operator=(const Button& button) {
 		this->normalColor = button.normalColor;
 		this->hoverColor = button.hoverColor;
 		this->onClick = button.onClick;
-		this->textureManager = TextureManager::getInstance();
-		this->font = textureManager->getFont("roboto");
+		this->font = TextureManager::getInstance()->getFont("roboto");
 		this->buttonText.setFont(this->font);
 		this->buttonText.setString(button.buttonText.getString());
 		this->buttonText.setCharacterSize(20);

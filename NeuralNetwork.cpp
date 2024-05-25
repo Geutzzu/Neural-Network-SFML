@@ -53,12 +53,9 @@ vector<double> NeuralNetwork::calculateNeuronOutputsDiscretized(const vector<dou
 	vector<double> outputs = inputs;
 
 	if (specificLayer == -1) { /// if we want to plot the neuron from the input layer
-		if (activeNeuron == 0) { /// if we want to plot the first neuron
+		if (activeNeuron == 0)  /// if we want to plot the first neuron
 			outputs[0] = 0;
-		}
-		else { /// if we want to plot the second neuron
-			outputs[1] = 0;
-		}
+		else outputs[1] = 0;/// if we want to plot the second neuron
 		outputs = this->calculateOutputs(outputs, activation);
 		return outputs;
 	}
@@ -69,20 +66,15 @@ vector<double> NeuralNetwork::calculateNeuronOutputsDiscretized(const vector<dou
 
 		if (i == specificLayer) {
 			if (i != this->layers.size() - 1) {
-				for (int j = 0; j < outputs.size(); j++) {
-					if (j != activeNeuron) { /// if the neuron is not the active neuron
-						outputs[j] = 0; /// set the output to 0
-					}
-				}
+				for (int j = 0; j < outputs.size(); j++) 
+					if (j != activeNeuron) /// if the neuron is not the active neuron
+						outputs[j] = 0; /// set the output to 0 - we do this so we can visualize the color changes
 			}
 			else {
-				for (int j = 0; j < outputs.size(); j++) {
-					if (j != activeNeuron) { /// if the neuron is not the active neuron
+				for (int j = 0; j < outputs.size(); j++)
+					if (j != activeNeuron)  /// if the neuron is not the active neuron
 						outputs[j] = 0.8; /// set the output to a value close to 1 but not one to see the difference - you could call this a confidence bound
-					}
-				}
 			}
-
 		}
 	}
 	return outputs;
@@ -95,34 +87,25 @@ vector<double> NeuralNetwork::calculateNeuronOutputs(const vector<double>& input
 	vector<double> outputs = inputs;
 
 	if (specificLayer == -1) { /// if we want to plot the neuron from the input layer
-		if (activeNeuron == 0) { /// if we want to plot the first neuron
+		if (activeNeuron == 0)  /// if we want to plot the first neuron
 			outputs[0] = 0;
-		}
-		else { /// if we want to plot the second neuron
-			outputs[1] = 0;
-		}
+		else outputs[1] = 0;/// if we want to plot the second neuron
 		outputs = this->calculateOutputs(outputs, activation);
 		return outputs;
 	}
 
-
 	for (int i = 0; i < this->layers.size(); i++) {
 		outputs = this->layers[i].calculateOutputs(outputs, activation); /// calculate the outputs of the layer
-
 		if (i == specificLayer) {
 			if (i != this->layers.size() - 1) {
-				for (int j = 0; j < outputs.size(); j++) {
-					if (j != activeNeuron) { /// if the neuron is not the active neuron
-						outputs[j] = 0; /// set the output to 0
-					}
-				}
+				for (int j = 0; j < outputs.size(); j++) 
+					if (j != activeNeuron)  /// if the neuron is not the active neuron
+						outputs[j] = 0; /// set the output to 0 - we do this so we can visualize the color changes
 			}
 			else {
-				for (int j = 0; j < outputs.size(); j++) {
-					if (j != activeNeuron) { /// if the neuron is not the active neuron
+				for (int j = 0; j < outputs.size(); j++) 
+					if (j != activeNeuron)  /// if the neuron is not the active neuron
 						outputs[j] = 0.01; /// here we place it low so we can see the color changes when interpolating
-					}
-				}
 			}
 
 		}
