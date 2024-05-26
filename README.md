@@ -19,3 +19,6 @@
 - Ctrl + y: redo
 - Ctrl + s: save the dataset in file
 - Ctrl + o: loads the dataset from the same file
+
+## Notes
+  I will expand this readme to talk more about how this simulation works.
