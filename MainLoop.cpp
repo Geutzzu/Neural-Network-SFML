@@ -31,10 +31,10 @@ void MainLoop::initializeCostDropdown() {
 }
 
 
-MainLoop::MainLoop() : window(sf::VideoMode(1920, 1080), "Neural Network"), network({ 2, 3, 2 }), networkVisualizer(NetworkVisualizer<Neuron>(network, Vector2f(450, 350), this->classColors)), gameState(GameState::InputingData), learningRate(0.1), momentum(0.9), learningRateSlider(750, 40, 200, 15, this->learningRate, "Learning Rate", 0, 2),
+MainLoop::MainLoop() : window(sf::VideoMode(1920, 1080), "Neural Network", Style::Fullscreen), network({ 2, 3, 2 }), networkVisualizer(NetworkVisualizer<Neuron>(network, Vector2f(450, 350), this->classColors)), gameState(GameState::InputingData), learningRate(0.1), momentum(0.9), learningRateSlider(750, 40, 200, 15, this->learningRate, "Learning Rate", 0, 2),
 normalButtonHeight(40), normalButtonWidth(135),
 momentumSlider(750, 100, 200, 15, this->momentum, "Momentum", 0, 1),
-classDropdown(20, 840, 200, 50, Color(50, 50, 50), Color(105, 105, 105), Color(25, 25, 25), TextureManager::getInstance()->getFont("roboto"), ""),
+classDropdown(20, 920, 200, 50, Color(50, 50, 50), Color(105, 105, 105), Color(25, 25, 25), TextureManager::getInstance()->getFont("roboto"), ""),
 activationDropdown(590, 20, this->normalButtonWidth, this->normalButtonHeight, Color(128, 128, 128), Color(160, 160, 160), Color::Transparent, TextureManager::getInstance()->getFont("roboto"), "Sigmoid", true),
 costDropdown(430, 20, this->normalButtonWidth, this->normalButtonHeight, Color(128, 128, 128), Color(160, 160, 160), Color::Transparent, TextureManager::getInstance()->getFont("roboto"), "Cross Entropy", true),
 costGraph(200, 25, 200, 50), threadPool(8) {
@@ -100,10 +100,10 @@ costGraph(200, 25, 200, 50), threadPool(8) {
 
 
     /// buttons and sliders
-    this->resetInputsButton = Button(20, 920, 200, 50, this->buttonColor, this->hoverColor, [this]() { this->resetInputs(); }, TextureManager::getInstance()->getFont("roboto"), "Reset Inputs");
-    this->resetOrStartTrainingButton = Button(20 + 238, 920, 200, 50, this->buttonColor, this->hoverColor, [this]() { this->resetOrStartTraining(); }, TextureManager::getInstance()->getFont("roboto"), "Start Training");
-    this->toggleHighlightMode = Button(20 + 2 * 238, 920, 200, 50, this->buttonColor, this->hoverColor, [this]() { this->toggleHighlight(); }, TextureManager::getInstance()->getFont("roboto"), "Toggle Highlight");
-    this->toggleVisualizeMode = Button(20 + 3 * 238, 920, 200, 50, this->buttonColor, this->hoverColor, [this]() { this->toggleVisualize(); }, TextureManager::getInstance()->getFont("roboto"), "Toggle Visualize");
+    this->resetInputsButton = Button(20, 1000, 200, 50, this->buttonColor, this->hoverColor, [this]() { this->resetInputs(); }, TextureManager::getInstance()->getFont("roboto"), "Reset Inputs");
+    this->resetOrStartTrainingButton = Button(20 + 238, 1000, 200, 50, this->buttonColor, this->hoverColor, [this]() { this->resetOrStartTraining(); }, TextureManager::getInstance()->getFont("roboto"), "Start Training");
+    this->toggleHighlightMode = Button(20 + 2 * 238, 1000, 200, 50, this->buttonColor, this->hoverColor, [this]() { this->toggleHighlight(); }, TextureManager::getInstance()->getFont("roboto"), "Toggle Highlight");
+    this->toggleVisualizeMode = Button(20 + 3 * 238, 1000, 200, 50, this->buttonColor, this->hoverColor, [this]() { this->toggleVisualize(); }, TextureManager::getInstance()->getFont("roboto"), "Toggle Visualize");
 
     this->nextPointButton = Button(100 + visit([](auto&& arg) { return arg.getNumberOutputs(); }, networkVisualizer) + 50, 400, 25, 150, this->buttonColor, this->hoverColor, [this]() {
         /// sets current data point to the next one in the set if possible
@@ -399,7 +399,7 @@ void MainLoop::visualizePlot()
 
             
 			for (int i = 0; i < outputs.size(); i++) { /// calculating the weighted sum of the colors in linear RGB
-                double r_i = this->classColors[i].r / 255.0;
+				double r_i = this->classColors[i].r / 255.0; /// to convert into liniar rgb we divide by 255
                 double g_i = this->classColors[i].g / 255.0;
                 double b_i = this->classColors[i].b / 255.0;
 
@@ -950,7 +950,16 @@ void MainLoop::run()
             this->trainingState(); /// this handles all the training logic and drawing
         }
         else if (!this->dataSetEmpty) {
-            network.calculateOutputs((*this->currentDataPoint).getInputs(), this->activationType);
+            /// visualization
+            if (this->isVisualizing) {
+                if (this->isDiscretized)
+                    this->visualizePlotDiscretized();
+                else
+                    this->visualizePlot();
+            }
+
+			network.calculateOutputs((*this->currentDataPoint).getInputs(), this->activationType); /// for the network visualization
+
         }
         for (auto& pair : this->circles) {
             this->window.draw(pair.second);
