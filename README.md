@@ -6,7 +6,7 @@ Simple artificial neural network made in C++ that uses the SFML library for visu
 ![2024-05-26 19-13-30](https://github.com/Geutzzu/Neural-Network-SFML/assets/80857756/e0afcc43-4b44-4a9d-be71-6483402a8c86)
 
 ## Installation
-Right now in this current commit, you must have SFML installed, set up your own project with it, and then copy all the files (.cpp, .h, Resources folder, dataSet.txt). You can copy the .sln also and avoid making a new project, but you will still need to install SFML from their website and set it up yourself (version used: 2.6.1, 64-bit with C++ 17).
+The repository contains all the files necessary to run the project, but it requires Visual Studio Community with the C++ add-ons to work. After cloning, it is as simple as opening the solution file and pressing run (version used: 2.6.1, 64-bit with C++ 17).
 
 ## What it does
 We will train a neural network to learn multi-class classification. You will be able to input data points in the 2D plot represented by the right half of the screen. Based on the number of output neurons you will be able to choose between the colors corresponding to each output. In the inputting data state you will be able to add as many data points as you like with the label indicated by the color you have selected. After you are done inputting data and you are pleased with the network architecture and hyperparameters, you can then start the training process. Inside the training state you can fiddle with different visualizations (such as neuron views, data point highlighting, interpolating between colors etc.).
