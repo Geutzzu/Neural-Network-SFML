@@ -9,9 +9,11 @@ Simple artificial neural network made in C++ that uses the SFML library for visu
 
 ![2024-05-26 19-13-30](https://github.com/Geutzzu/Neural-Network-SFML/assets/80857756/e0afcc43-4b44-4a9d-be71-6483402a8c86)
 
-- ### Examples for multi-class classification
+- ### Example for multi-class classification using Sigmoid
 
 ![2024-05-28 01-26-09](https://github.com/Geutzzu/Neural-Network-SFML/assets/80857756/7900f2c9-5590-4887-bc07-60f299d80472)
+
+- ### Example for multi-class classification using TanH
 
 ![2024-05-28 02-08-01 (1)](https://github.com/Geutzzu/Neural-Network-SFML/assets/80857756/5ec1e1cf-4c37-4926-8569-fe2fbdff8031)
 
