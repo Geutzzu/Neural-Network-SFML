@@ -85,6 +85,10 @@ void Neuron::draw(sf::RenderWindow& window, double minimum, double maximum) {
 		ss << fixed << setprecision(2) << value;
 		string valueStr = ss.str();
 		this->text.setString(valueStr);
+		FloatRect textRect = text.getLocalBounds(); /// so we recenter the text
+		this->text.setOrigin(textRect.left + textRect.width / 2.0f, textRect.top + textRect.height / 2.0f); /// so we recenter the text
+		this->text.setPosition(this->position.x + circle.getRadius(), this->position.y + circle.getRadius()); /// so we recenter the text
+
 		previousValue = value; 
 	}
 	
