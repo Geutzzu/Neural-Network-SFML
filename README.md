@@ -3,7 +3,16 @@
 ## Description
 Simple artificial neural network made in C++ that uses the SFML library for visualizing both the training process and the network itself. It was inspired by TensorFlow's neural network demo for binary classification. You can check it out here: https://playground.tensorflow.org. The project was motivated by the desire to better understand how a neural network works by building it from scratch without using any libraries. I also consider it a great learning tool for anybody that wants to pick up machine learning and wants a more visual introduction on how an artificial neural network operates.
 
+## Demonstration
+
+- ### Example for binary classification
+
 ![2024-05-26 19-13-30](https://github.com/Geutzzu/Neural-Network-SFML/assets/80857756/e0afcc43-4b44-4a9d-be71-6483402a8c86)
+
+- ### Example for multi-class classification
+
+![2024-05-28 01-26-09](https://github.com/Geutzzu/Neural-Network-SFML/assets/80857756/7900f2c9-5590-4887-bc07-60f299d80472)
+
 
 ## Installation
 The repository contains all the files necessary to run the project, but it requires Visual Studio Community with the C++ add-ons to work. After cloning, it is as simple as opening the solution file and pressing run (version used: 2.6.1, 64-bit with C++ 17).
