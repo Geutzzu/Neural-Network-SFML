@@ -486,8 +486,8 @@ void MainLoop::redo() {
         CircleShape circle(10);
         circle.setFillColor(pointColor);
         circle.setPosition(point.getInputs()[0] * this->window.getSize().x / 2 + this->window.getSize().x / 2, point.getInputs()[1] * this->window.getSize().y);
-        circle.setOutlineThickness(2); // Set the thickness of the outline
-        circle.setOutlineColor(sf::Color::White); // Set the color of the outline
+        circle.setOutlineThickness(2); // set the thickness of the outline
+        circle.setOutlineColor(Color::White); // set the color of the outline
 
         this->circles[point] = circle; // Assuming 'circle' is the corresponding CircleShape
 
@@ -583,11 +583,11 @@ void MainLoop::eventHandler(sf::Event& event, bool& space) {
 
 
     /// buttons and sliders
-    sf::Vector2i pixelPos = Mouse::getPosition(this->window);
-    sf::Vector2f worldPos = window.mapPixelToCoords(pixelPos, this->networkView);
-    sf::Vector2f worldPosDefault = window.mapPixelToCoords(pixelPos, this->window.getDefaultView());
+    Vector2i pixelPos = Mouse::getPosition(this->window);
+    Vector2f worldPos = window.mapPixelToCoords(pixelPos, this->networkView);
+    Vector2f worldPosDefault = window.mapPixelToCoords(pixelPos, this->window.getDefaultView());
 
-    sf::Event worldEvent = event;
+    Event worldEvent = event;
     Event defaultWorldEvent = event;
 
     worldEvent.mouseButton.x = worldPos.x;
@@ -852,6 +852,8 @@ void MainLoop::readFromFile(const string& filename) {
 	}
 }
 
+
+/// the file is not meant to be interactioned with from the outside
 void MainLoop::writeToFile(const string& filename) {
     ofstream file;
     file.open(filename);
@@ -867,7 +869,7 @@ void MainLoop::writeToFile(const string& filename) {
         const vector<double>& inputs = point.getInputs();
         const vector<double>& outputs = point.getOutputs();
 
-        // Write inputs to file
+        // inputs 
         for (size_t i = 0; i < inputs.size(); ++i) {
             file << inputs[i];
             if (i != inputs.size() - 1) {
@@ -875,9 +877,9 @@ void MainLoop::writeToFile(const string& filename) {
             }
         }
 
-        file << " -> "; // Separate inputs and outputs with an arrow
+        file << " -> "; // separate inputs and outputs with an arrow
 
-        // Write outputs to file
+        // outputs
         for (size_t i = 0; i < outputs.size(); ++i) {
             file << outputs[i];
             if (i != outputs.size() - 1) {
@@ -885,7 +887,7 @@ void MainLoop::writeToFile(const string& filename) {
             }
         }
 
-        file << '\n'; // Start a new line for each data point
+        file << '\n'; // start a new line for each data point
     }
 
     file.close();

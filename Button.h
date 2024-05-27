@@ -14,13 +14,13 @@
 using namespace std;
 using namespace sf;
 
-class Button : public sf::RectangleShape { 
+class Button : public RectangleShape { 
 protected:
-    sf::Color normalColor;
-    sf::Color hoverColor;
+    Color normalColor;
+    Color hoverColor;
     function<void()> onClick;
-	sf::Font font;
-    sf::Text buttonText;
+	Font font;
+    Text buttonText;
 	bool visible;
 	bool wasPressed;
 
@@ -28,18 +28,18 @@ protected:
 public:
     Button() = default;
 
-	void init(int x, int y, float width, float height, sf::Color color, sf::Color hoverColor, function<void()> onClickFunction, const sf::Font& font, const string& text);
+	void init(int x, int y, float width, float height, Color color, Color hoverColor, function<void()> onClickFunction, const Font& font, const string& text);
 	void initText();
 
-    Button(float x, float y, float width, float height, sf::Color color, sf::Color hoverColor, function<void()> onClickFunction, const sf::Font& font, const string& text);
+    Button(float x, float y, float width, float height, Color color, Color hoverColor, function<void()> onClickFunction, const Font& font, const string& text);
 
 	Button(const Button& button);
 	Button& operator=(const Button& button);
 
 	virtual Button* clone() const { return new Button(*this); }
 
-    virtual void checkEvents(sf::RenderWindow& window, Event& event);
-	virtual void checkEvents(sf::RenderWindow& window);
+    virtual void checkEvents(RenderWindow& window, Event& event);
+	virtual void checkEvents(RenderWindow& window);
     virtual void draw(RenderWindow& window);
     virtual void checkHover(RenderWindow& window);
 

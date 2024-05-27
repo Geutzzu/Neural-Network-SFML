@@ -46,8 +46,8 @@ void Layer::initializeWeightsAndBiases() {
 	/// Xavier initialization of the weights and biases
 	double variance = 2.0 / (double)this->numberInputs;
 	double standardDeviation = sqrt(variance);
-	std::default_random_engine generator;
-	std::normal_distribution<double> distribution(0.0, standardDeviation);
+	default_random_engine generator;
+	normal_distribution<double> distribution(0.0, standardDeviation);
 
 	for (int i = 0; i < this->weights.size(); i++) {
 		this->weights[i] = distribution(generator);
