@@ -730,7 +730,7 @@ void MainLoop::trainingState() {
     for (auto it = this->dataPoints.begin(); it != this->dataPoints.end(); ++it) {
         const auto& dataPoint = *it;
 
-        if (it == this->currentDataPoint)
+        if (it == this->currentDataPoint) /// we do this so we can visualize the point in the network (its outputs)
             continue;
 
         this->network.updateGradientsForDataPoint(dataPoint, this->activationType, this->costType);
@@ -778,9 +778,17 @@ void MainLoop::readFromFile(const string& filename) {
     file.open(filename);
     if (!file) {
         cerr << "Unable to open file data.txt";
+        return;
     }
 
-	this->resetInputs();
+	
+    if (file.peek() == ifstream::traits_type::eof()) {
+        cerr << "File " << filename << " is empty";
+        return;
+    }
+
+
+    this->resetInputs();
 
     try {
 
