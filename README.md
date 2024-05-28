@@ -96,11 +96,12 @@ this->pixels = VertexArray(Triangles, width * height * 6); // 6 vertices for eac
 - Ctrl + y: redo
 - Ctrl + s: save the dataset in file
 - Ctrl + o: loads the dataset from the same file
-- network view panning: you can scroll to zoom in and out, and you can also hold right-click to pan the camera around the network visualization
+- network view panning: you can scroll to zoom in and out, and you can also hold right-click to pan the camera arround the network visualization
 
 ![2024-05-27 23-00-18](https://github.com/Geutzzu/Neural-Network-SFML/assets/80857756/7dc9ac57-5997-4b35-a20a-68aa5059ce99)
 
 ## Notes
 - Both visualizations have a significant performance hit (training is way faster with them turned off)
+- the network kinda breaks if you use cross entropy with some activations (because math is fun)
 - The app runs by default in 1920x1080 fullscreen
 - I might expand this readme to dig deeper into some features such as the math behind the network
