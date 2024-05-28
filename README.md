@@ -1,7 +1,7 @@
 # Artificial Neural Network with SFML
 
 ## Description
-Simple artificial neural network made in C++ that uses the SFML library for visualizing both the training process and the network itself. It was inspired by TensorFlow's neural network demo for binary classification. You can check it out here: https://playground.tensorflow.org. The project was motivated by the desire to better understand how a neural network works by building it from scratch without using any libraries. I also consider it a great learning tool for anybody that wants to pick up machine learning and wants a more visual introduction on how an artificial neural network operates.
+Simple artificial neural network made in C++ that uses the SFML library for visualizing both the training process and the network itself. It was inspired by TensorFlow's neural network demo for binary classification. You can check it out here: https://playground.tensorflow.org. The project was motivated by the desire to better understand how a neural network works by building it from scratch without using any libraries. I also consider it a great learning tool for anybody that wants to pic up machine learning and values a more visual introduction on how an artificial neural network operates.
 
 ## Demonstration
 
