@@ -102,6 +102,5 @@ this->pixels = VertexArray(Triangles, width * height * 6); // 6 vertices for eac
 
 ## Notes
 - Both visualizations have a significant performance hit (training is way faster with them turned off)
-- the network kinda breaks if you use cross entropy with some activations (because math is fun)
 - The app runs by default in 1920x1080 fullscreen
 - I might expand this readme to dig deeper into some features such as the math behind the network
